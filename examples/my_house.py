@@ -1,5 +1,121 @@
 #!/usr/bin/env python3
 
+# RANDOM THINGS
+
+# random: color (purple, pink or white)
+# random: at which floor does the slide start
+# random: amount of floors (2 - 4)
+# random: house shape (L shape or rectangle, 50% chance)
+# OR: the house is always an L shape, but the shape of the L depends.
+
+
+
+# BRICKS TO USE
+
+# pink_glazed_terracotta
+# pink_concrete_powder
+# pink_concrete
+# pink_wool
+# brain_coral_block
+
+# crimson_flanks
+# stripped_crimson_hyphae
+# amethyst block
+# purpur_block
+# chorus_flower
+# purple_terracotta
+# magenta_terracotta
+# pink_terracotta
+# magenta_concrete
+# bubble_coral_block
+
+# glass
+# glass_pane
+
+# sandstone
+# cut_sandstone
+# smooth_sandstone
+# smooth_quartz
+
+# honeycomb_block
+
+# stripped_warped_hyphae
+
+
+# STAIRS
+
+# purpur_stairs
+# quartz_stairs
+# prismarine_brick_stairs
+
+
+# LIGHTS
+
+# pearlescent_froglight
+# verdant_froglight
+# ochre_froglight
+# lantern
+# soul_lantern
+# shroomlight
+# end_rod
+# glowstone
+# redstone_lamp
+# sea_lantern
+
+
+
+# DECORATION
+
+# pink_candle
+# magenta_candle
+# white_candle
+# orange_candle
+# yellow_candle 
+
+# end_rod
+# pink_banner
+# pink_tulip
+# lilac
+# spore_blossom
+# sea_lantern
+# cake
+# flower_pot
+# armor_stand (+ armor erop als kleding, misschien drakenhoofdje)
+# end_crystal (As items, end crystals may be placed on bedrock and obsidian, if the two blocks above the bedrock or obsidian block are air or replaceable blocks and no other entities intersect the area.)
+# nether_star (in glow_item_frame)
+# glow_berries (in glow_item_frame)
+# totem_of_undying (in glow_item_frame)
+# lingering_potion (in glow_item_frame)
+# bell
+# sunflower
+
+# horn_coral_fan
+# bubble_coral_fan
+# brain_coral_fan
+# tube_coral_fan
+
+# small_amethyst_bud
+# medium_amethyst_bud
+# large_amethyst_bud
+# amethyst_cluster
+
+
+# FURNITURE
+
+# scaffolding
+# pink_bed
+# crimson_door
+# warped_door
+# birch_door
+
+# loom
+# lantern
+# barrel
+# composter
+
+
+
+
 """
 NOTE: This file is an old example script. Although it is no longer
       comprehensive, and it does not use the most modern features or best
@@ -61,6 +177,11 @@ from gdpc import minecraft_tools as mt
 from gdpc import editor_tools as et
 
 
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+
 # Here, we set up Python's logging system.
 # GDPC sometimes logs some errors that it cannot otherwise handle.
 logging.basicConfig(format=colored("%(name)s - %(levelname)s - %(message)s", color="yellow"))
@@ -105,6 +226,56 @@ ROADHEIGHT = 0
 heights = WORLDSLICE.heightmaps["MOTION_BLOCKING_NO_LEAVES"]
 # print("heights: ", heights);
 
+# show heights in plot:
+# plt.imshow(heights, interpolation="none")
+# plt.colorbar()
+# plt.show()
+
+
+minHouseWidth = 10
+minHouseDepth = 7
+minHouseHeight = 5
+
+sameValueGroups = []
+for index in enumerate(heights):
+      sameValueGroups.append([])
+
+# print(len(sameValueGroups))
+for ri, row in enumerate(heights):
+      sameValueGroupCurrentIndex = 0
+      sameValueGroups[ri].append({"height": 0, "coordinates":[]})
+
+
+      for ci, col in enumerate(row):
+            # print([ri, ci], ": ", col)
+            if(col == row[ci - 1]):
+                  # sameValueGroupCurrentIndex 
+                  # print("previous was the same value.")
+                  sameValueGroups[ri][sameValueGroupCurrentIndex]['coordinates'].append([ri, ci])
+
+            else:
+                  # print('hoi', sameValueGroups[ri][sameValueGroupCurrentIndex]["coordinates"])
+                  sameValueGroupCurrentIndex += 1
+                  sameValueGroups[ri].append({"height":col, "coordinates": []})
+                  # print('hoi2', sameValueGroups[ri][sameValueGroupCurrentIndex])
+                  sameValueGroups[ri][sameValueGroupCurrentIndex]['coordinates'].append([ri, ci])
+
+
+for sameValueGroup in sameValueGroups:
+      print(sameValueGroup)
+# print("samevaluegroups: ", sameValueGroups)
+
+
+for index, hoi in enumerate(sameValueGroups):
+      # if(index < sameValueGroups.count - 2):
+      print("index", index)
+      currentSameValueGroup = sameValueGroups[index][index]
+      print("current", currentSameValueGroup)
+      # nextSameValueGroup = sameValueGroups[index+1]
+
+      # if(currentSameValueGroup)
+
+
 
 # for x in range(0, 10 + 1):
 #     # The northern wall
@@ -127,15 +298,42 @@ heights = WORLDSLICE.heightmaps["MOTION_BLOCKING_NO_LEAVES"]
 # fill the entire buildarea with air
 # geo.placeCuboid(ED, (STARTX, STARTY, STARTZ), (LASTX, LASTY, LASTZ), Block("air"));
     
-# random: color (purple, pink or white)
-# random: at which floor does the slide start
-# random: amount of floors (2 - 4)
-# random: house shape (L shape or rectangle, 50% chance)
-# OR: the house is always an L shape, but the shape of the L depends.
 
 
 
 # search good spot that fits a house
+houseWidth = 10
+houseHeight = 5
+houseDepth = 7
+
+wallThickness = 1
+floorThickness = 1
+
+housePosition = (STARTX, STARTY, STARTZ)
+
+# # place house
+# geo.placeCuboidHollow(ED, housePosition, (housePosition[0] + houseWidth, housePosition[1] + houseHeight, housePosition[2] + houseDepth), Block("pink_concrete"));
+
+# # cut out wall
+# geo.placeCuboid(ED, (housePosition[0] + wallThickness, housePosition[1] + floorThickness, housePosition[2] + houseDepth - wallThickness), (housePosition[0] + houseWidth - wallThickness, housePosition[1] + houseHeight - floorThickness, housePosition[2] + houseDepth), Block("air"));
+
+# # place floor
+# geo.placeRect(ED, Rect((housePosition[0]+wallThickness,housePosition[2]+wallThickness),(houseWidth - wallThickness, houseDepth)), housePosition[1], Block("sandstone"))
+
+# # place window left
+# geo.placeCuboid(ED, (housePosition[0] + 3, housePosition[1] + 2, housePosition[2]), (housePosition[0] + 3, housePosition[1] + 5, housePosition[2]), Block("glass_pane"))
+
+# # place window right
+# geo.placeCuboid(ED, (housePosition[0] + houseWidth - 3, housePosition[1] + 2, housePosition[2]), (housePosition[0] + houseWidth - 3, housePosition[1] + 5, housePosition[2]), Block("glass_pane"))
+
+# # place big window center
+# geo.placeCuboid(ED, (housePosition[0] + (houseWidth / 2) - 2, housePosition[1] + 2, housePosition[2]), (housePosition[0] + (houseWidth/2) + 2, housePosition[1] + 5, housePosition[2]), Block("glass_pane"))
+
+
+
+
+
+# # search good spot that fits a house
 # houseWidth = 20
 # houseHeight = 5
 # houseDepth = 7
@@ -145,55 +343,62 @@ heights = WORLDSLICE.heightmaps["MOTION_BLOCKING_NO_LEAVES"]
 
 # housePosition = (STARTX, STARTY, STARTZ)
 
-# place house
-# geo.placeCuboidHollow(ED, housePosition, (housePosition[0] + houseWidth, housePosition[1] + houseHeight, housePosition[2] + houseDepth), Block("pink_concrete"));
+# # place house
+# # geo.placeCuboidHollow(ED, housePosition, (housePosition[0] + houseWidth, housePosition[1] + houseHeight, housePosition[2] + houseDepth), Block("pink_concrete"));
 
-# cut out wall
-# geo.placeCuboid(ED, (housePosition[0] + wallThickness, housePosition[1] + floorThickness, housePosition[2] + houseDepth - wallThickness), (housePosition[0] + houseWidth - wallThickness, housePosition[1] + houseHeight - floorThickness, housePosition[2] + houseDepth), Block("air"));
+# # cut out wall
+# # geo.placeCuboid(ED, (housePosition[0] + wallThickness, housePosition[1] + floorThickness, housePosition[2] + houseDepth - wallThickness), (housePosition[0] + houseWidth - wallThickness, housePosition[1] + houseHeight - floorThickness, housePosition[2] + houseDepth), Block("air"));
 
-# place floor
-# geo.placeRect(ED, Rect((housePosition[0]+wallThickness,housePosition[2]+wallThickness),(houseWidth - wallThickness, houseDepth)), housePosition[1], Block("sandstone"))
+# # place floor
+# # geo.placeRect(ED, Rect((housePosition[0]+wallThickness,housePosition[2]+wallThickness),(houseWidth - wallThickness, houseDepth)), housePosition[1], Block("sandstone"))
 
-# place window left
+# # place window left
 # geo.placeCuboid(ED, (housePosition[0] + 3, housePosition[1] + 2, housePosition[2]), (housePosition[0] + 3, housePosition[1] + 5, housePosition[2]), Block("glass_pane"))
 
-# place window right
+# # place window right
 # geo.placeCuboid(ED, (housePosition[0] + houseWidth - 3, housePosition[1] + 2, housePosition[2]), (housePosition[0] + houseWidth - 3, housePosition[1] + 5, housePosition[2]), Block("glass_pane"))
 
-# place big window center
+# # place big window center
 # geo.placeCuboid(ED, (housePosition[0] + (houseWidth / 2) - 2, housePosition[1] + 2, housePosition[2]), (housePosition[0] + (houseWidth/2) + 2, housePosition[1] + 5, housePosition[2]), Block("glass_pane"))
 
 
 
 
 
-# search good spot that fits a house
-houseWidth = 20
-houseHeight = 5
-houseDepth = 7
+# fig, ax = plt.subplots()
+# min_val, max_val = STARTX, STARTZ
 
-wallThickness = 1
-floorThickness = 1
+# intersection_matrix = np.random.randint(0, 10, size=(max_val, max_val))
 
-housePosition = (STARTX, STARTY, STARTZ)
+# ax.matshow(intersection_matrix, cmap=plt.cm.Blues)
 
-# place house
-# geo.placeCuboidHollow(ED, housePosition, (housePosition[0] + houseWidth, housePosition[1] + houseHeight, housePosition[2] + houseDepth), Block("pink_concrete"));
+# for i in range(15):
+#       for j in range(15):
+#             c = intersection_matrix[j,i]
+#             ax.text(i, j, str(c), va='center', ha='center')
 
-# cut out wall
-# geo.placeCuboid(ED, (housePosition[0] + wallThickness, housePosition[1] + floorThickness, housePosition[2] + houseDepth - wallThickness), (housePosition[0] + houseWidth - wallThickness, housePosition[1] + houseHeight - floorThickness, housePosition[2] + houseDepth), Block("air"));
+# plt.matshow(intersection_matrix, cmap=plt.cm.Blues)
 
-# place floor
-# geo.placeRect(ED, Rect((housePosition[0]+wallThickness,housePosition[2]+wallThickness),(houseWidth - wallThickness, houseDepth)), housePosition[1], Block("sandstone"))
+# ax.set_xlim(min_val, max_val)
+# ax.set_ylim(min_val, max_val)
+# ax.set_xticks(np.arange(max_val))
+# ax.set_yticks(np.arange(max_val))
+# ax.grid()
 
-# place window left
-geo.placeCuboid(ED, (housePosition[0] + 3, housePosition[1] + 2, housePosition[2]), (housePosition[0] + 3, housePosition[1] + 5, housePosition[2]), Block("glass_pane"))
 
-# place window right
-geo.placeCuboid(ED, (housePosition[0] + houseWidth - 3, housePosition[1] + 2, housePosition[2]), (housePosition[0] + houseWidth - 3, housePosition[1] + 5, housePosition[2]), Block("glass_pane"))
 
-# place big window center
-geo.placeCuboid(ED, (housePosition[0] + (houseWidth / 2) - 2, housePosition[1] + 2, housePosition[2]), (housePosition[0] + (houseWidth/2) + 2, housePosition[1] + 5, housePosition[2]), Block("glass_pane"))
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
