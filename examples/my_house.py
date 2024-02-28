@@ -266,17 +266,38 @@ for sameValueGroup in sameValueGroups:
 # print("samevaluegroups: ", sameValueGroups)
 
 
-for index, hoi in enumerate(sameValueGroups):
+def get_size(group):
+      # print('group', group)
+      return len(group['coordinates'])
+
+
+for index, row in enumerate(sameValueGroups):
       # if(index < sameValueGroups.count - 2):
-      print("index", index)
-      currentSameValueGroup = sameValueGroups[index][index]
-      print("current", currentSameValueGroup)
+      # print("index", index)
+      # row = currentSameValueGroup[index]
+      rowGroupsBigToSmall = []
+      for group in enumerate(row):
+
+            # currentSameValueGroup = group
+            # print('group', group)
+            print(index)
+            size = len(group[1]['coordinates'])
+            coordinates = group[1]['coordinates']
+            print('size', size)
+
+            # sort groups from big to small
+            # if(rowGroupsBigToSmall.count == 0):
+            #       rowGroupsBigToSmall.append(group)
+            # else:
+            #       if(size < row)
+      
+      row.sort(key=get_size)
+      print("row groupsss", row)
+            # print("current", currentSameValueGroup)
       # nextSameValueGroup = sameValueGroups[index+1]
 
       # if(currentSameValueGroup)
-
-
-
+# if a situation occurs where there are at least 10 (minHouseWidth) samevaluegroup coordinates starting with 3 ([3, 3] [3,4] [3,5]..) and  7 rows are the same but with different first coordinate ([4,3] [4,4] [4,5] and [5,3] [5,4] [5,5] and [6,3] [6,4] [6,5] etc. then build a house there. otherwise chop trees around biggest spot.)
 # for x in range(0, 10 + 1):
 #     # The northern wall
 #     y = heights[(x - 0, 0)]
