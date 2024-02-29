@@ -253,7 +253,7 @@ ROADHEIGHT = 0
 #     # - 'OCEAN_FLOOR': The top solid blocks
 #     heights = WORLDSLICE.heightmaps["MOTION_BLOCKING_NO_LEAVES"]
 # print("heights: ", heights);
-heights = WORLDSLICE.heightmaps["OCEAN_FLOOR"]
+heights = WORLDSLICE.heightmaps["MOTION_BLOCKING"]
 
 
 # show heights in plot:
@@ -267,6 +267,44 @@ minHouseDepth = 7
 minHouseHeight = 5
 
 sameValueGroupsPerRow = []
+
+
+
+
+
+def makeHouse(posX, posY, posZ):
+
+      # search good spot that fits a house
+      houseWidth = 20
+      houseHeight = 5
+      houseDepth = 7
+
+      wallThickness = 1
+      floorThickness = 1
+
+      # housePosition = (STARTX, STARTY, STARTZ)
+      housePosition = (posX, posY, posZ)
+
+      # place house
+      geo.placeCuboidHollow(ED, housePosition, (housePosition[0] + houseWidth, housePosition[1] + houseHeight, housePosition[2] + houseDepth), Block("pink_concrete"));
+
+      # cut out wall
+      geo.placeCuboid(ED, (housePosition[0] + wallThickness, housePosition[1] + floorThickness, housePosition[2] + houseDepth - wallThickness), (housePosition[0] + houseWidth - wallThickness, housePosition[1] + houseHeight - floorThickness, housePosition[2] + houseDepth), Block("air"));
+
+      # place floor
+      geo.placeRect(ED, Rect((housePosition[0]+wallThickness,housePosition[2]+wallThickness),(houseWidth - wallThickness, houseDepth)), housePosition[1], Block("sandstone"))
+
+      # place window left
+      geo.placeCuboid(ED, (housePosition[0] + 3, housePosition[1] + 2, housePosition[2]), (housePosition[0] + 3, housePosition[1] + 5, housePosition[2]), Block("glass_pane"))
+
+      # place window right
+      geo.placeCuboid(ED, (housePosition[0] + houseWidth - 3, housePosition[1] + 2, housePosition[2]), (housePosition[0] + houseWidth - 3, housePosition[1] + 5, housePosition[2]), Block("glass_pane"))
+
+      # place big window center
+      geo.placeCuboid(ED, (housePosition[0] + (houseWidth / 2) - 2, housePosition[1] + 2, housePosition[2]), (housePosition[0] + (houseWidth/2) + 2, housePosition[1] + 5, housePosition[2]), Block("glass_pane"))
+
+
+
 
 def calculateArea(): 
       for index in enumerate(heights):
@@ -286,18 +324,18 @@ def calculateArea():
                         if(col == row[ci - 1]):
                               # sameValueGroupCurrentIndex 
                               # print("previous was the same value.")
-                              sameValueGroupsPerRow[ri][sameValueGroupCurrentIndex]['coordinates'].append([ri, ci])
+                              sameValueGroupsPerRow[ri][sameValueGroupCurrentIndex]['coordinates'].append(ci)
 
                         else:
-                              # print('hoi', sameValueGroupsPerRow[ri][sameValueGroupCurrentIndex]["coordinates"])
+                              print('hoi', sameValueGroupsPerRow[ri][sameValueGroupCurrentIndex]["coordinates"])
                               sameValueGroupCurrentIndex += 1
                               sameValueGroupsPerRow[ri].append({"height":col, "coordinates": []})
                               # print('hoi2', sameValueGroupsPerRow[ri][sameValueGroupCurrentIndex])
-                              sameValueGroupsPerRow[ri][sameValueGroupCurrentIndex]['coordinates'].append([ri, ci])
+                              sameValueGroupsPerRow[ri][sameValueGroupCurrentIndex]['coordinates'].append(ci)
                   else:
                         print('CI == 0')
                         sameValueGroupsPerRow[ri].append({"height":col, "coordinates": []})
-                        sameValueGroupsPerRow[ri][sameValueGroupCurrentIndex]['coordinates'].append([ri, ci])
+                        sameValueGroupsPerRow[ri][sameValueGroupCurrentIndex]['coordinates'].append(ci)
 
       # for sameValueGroup in sameValueGroupsPerRow:
       #       print(sameValueGroup)
@@ -312,9 +350,9 @@ def calculateArea():
       def minMaxValueGroups(group):
             groupSize = len(group['coordinates'])
             # startX = group['coordinates'][0][0]
-            startZ = group['coordinates'][0][1]
+            startZ = group['coordinates'][0]
             # endX = group['coordinates'][groupSize][0]
-            endZ = group['coordinates'][groupSize-1][1]
+            endZ = group['coordinates'][groupSize-1]
             return {
                   "height": group['height'],
                   # "startX": group['coordinates'][0][0],
@@ -327,16 +365,17 @@ def calculateArea():
       def addSize(group):
             groupSize = len(group['coordinates'])
             # startX = group['coordinates'][0][0]
-            startZ = group['coordinates'][0][1]
+            startZ = group['coordinates'][0]
             # endX = group['coordinates'][groupSize][0]
-            endZ = group['coordinates'][groupSize-1][1]
+            endZ = group['coordinates'][groupSize-1]
             return {
                   "height": group['height'],
                   "coordinates": group['coordinates'],
                   "size":  (endZ - startZ) + 1
             }
 
-
+      def intersection(list_a, list_b):
+            return [ e for e in list_a if e in list_b ]
 
       # map the row groups
       # for index, row in enumerate(sameValueGroupsPerRow):
@@ -361,31 +400,111 @@ def calculateArea():
       sameValueGroupsPerColumnCurrentIndex = 0
       # counter = 0;
 
-      
+      # for index in range(1000):
+      #       sameValueGroupsPerColumn.append({})
+
       for index, row in enumerate(sameValueGroupsPerRow):
-            print(row)
+            # print(row)
+            previousRow = sameValueGroupsPerRow[index - 1]
             if(row[0]['size'] < smallestAllowedAreaSize):
-                  return
+                  print('return')
+                  break
             else:
                   if(index > 0):
                         # if(row[0]['height'] == sameValueGroupsPerRow[index - 1][0]['height']):
                         #       print("jahoor")
                         #       print(index, index-1)
 
-                        if(row[0]['height'] == sameValueGroupsPerRow[index - 1][0]['height']):
-                              print("jahoor")
+                        if(row[0]['height'] == previousRow[0]['height'] and len(intersection(sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], row[0]['coordinates'])) > 0):
+                              print('height', row[0]['height'])
+                              # print("jahoor")
 
-                              print(index, index-1)
-                              isInArray = np.isin(np.array(row[0]['coordinates']), np.array(sameValueGroupsPerRow[index - 1][0]['coordinates']))
-                              print("is in array: ", isInArray)
+                              # print(index, index-1)
+                              # isInArray = np.isin(np.array(row[0]['coordinates']), np.array(previousRow[0]['coordinates']))
+                              # print("is in array: ", isInArray)
 
-                              
+                              print("INTERSECTION:", intersection(row[0]['coordinates'], previousRow[0]['coordinates']))
+                              print("aaaa", sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex])
+                              sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'] = intersection(sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], row[0]['coordinates'])
+                              print("aaaa", sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex])
+                              if(len(intersection(sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], row[0]['coordinates'])) > 0):
+                                    
+                                    print("yes")
+                                    print("index")
+                                    print(sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'])
+                                    print("")
+                                    print(row[0]['coordinates'])
                               # sameValueGroupsPerColumn[sameValueGroupCurrentIndex].append({'height': row[0]['height']})
+                              if(index == len(sameValueGroupsPerRow) - 1):
+                                    print("hoi")
+                                    print("coordinates", sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'])
+                                    sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex] = {"height": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['height'], "coordinates": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], "startRow": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['startRow'], "endRow": index - 1}
 
+                        else:
+                              sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex] = {"height": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['height'], "coordinates": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], "startRow": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['startRow'], "endRow": index - 1}
+                              # print("increaes current index")
+                              sameValueGroupsPerColumnCurrentIndex += 1
+                              sameValueGroupsPerColumn.append({'height': row[0]['height'], 'startRow': index, 'coordinates':  row[0]['coordinates']})
+                              # sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'] = row[0]['coordinates']
                   else:
-                        sameValueGroupsPerColumn.append({'height': row[0]['height']})
-                        sameValueGroupsPerColumnCurrentIndex += 1
+                        sameValueGroupsPerColumn.append({'height': row[0]['height'], 'startRow': index, 'coordinates': row[0]['coordinates']})
+                        # sameValueGroupsPerColumnCurrentIndex += 1
 
+
+      print("samevaluegroupspercolumn", sameValueGroupsPerColumn)
+
+      def mapSameValueGroupsPerColumn(g):
+            print("G IS: ", g)
+            startX =  g['startRow']
+            endX = g['endRow']
+            if(len(g['coordinates'])):
+                  startZ = g['coordinates'][0] 
+            else:
+                  startZ = 0
+            if(len(g['coordinates'])):
+                  endZ = g['coordinates'][0] 
+            else:
+                  endZ = 0
+            width = endX - startX + 1
+            depth = endZ - startZ + 1
+
+            if(len(g['coordinates']) == 0):
+               width = 0
+            
+
+            return {
+                  'height': g['height'],
+                  'startX': startX,
+                  'startZ': startZ,
+                  'endX': endX,
+                  'endZ': endZ,
+                  'width': width,
+                  'depth': depth,
+                  'surfaceSize': width * depth
+            }
+      
+      def get_surface_size(a):
+            print("a", a)
+            return a['surfaceSize']
+      
+      # map the sameValueGroupsPerColumn array
+      bigAreas = map(mapSameValueGroupsPerColumn, sameValueGroupsPerColumn)
+
+      bigAreas = list(bigAreas)
+      bigAreas.sort(key=get_surface_size, reverse=True)
+
+      print(bigAreas)
+      biggestArea = bigAreas[0]
+
+      print("BIGGEST AREA IS:", biggestArea)
+
+      makeHouse(biggestArea['startX'], biggestArea['height'], biggestArea['startZ'])
+
+
+      # plt.imshow(bigAreas)
+      # plt.show()
+      # for s in enumerate(sameValueGroupsPerColumn):
+            # print(s)
 
       # print(sameValueGroupsPerColumn)
 
@@ -442,39 +561,6 @@ def calculateArea():
 
 # # # place big window center
 # # geo.placeCuboid(ED, (housePosition[0] + (houseWidth / 2) - 2, housePosition[1] + 2, housePosition[2]), (housePosition[0] + (houseWidth/2) + 2, housePosition[1] + 5, housePosition[2]), Block("glass_pane"))
-
-
-
-
-def makeHouse():
-
-      # search good spot that fits a house
-      houseWidth = 20
-      houseHeight = 5
-      houseDepth = 7
-
-      wallThickness = 1
-      floorThickness = 1
-
-      housePosition = (STARTX, STARTY, STARTZ)
-
-      # place house
-      # geo.placeCuboidHollow(ED, housePosition, (housePosition[0] + houseWidth, housePosition[1] + houseHeight, housePosition[2] + houseDepth), Block("pink_concrete"));
-
-      # cut out wall
-      # geo.placeCuboid(ED, (housePosition[0] + wallThickness, housePosition[1] + floorThickness, housePosition[2] + houseDepth - wallThickness), (housePosition[0] + houseWidth - wallThickness, housePosition[1] + houseHeight - floorThickness, housePosition[2] + houseDepth), Block("air"));
-
-      # place floor
-      # geo.placeRect(ED, Rect((housePosition[0]+wallThickness,housePosition[2]+wallThickness),(houseWidth - wallThickness, houseDepth)), housePosition[1], Block("sandstone"))
-
-      # place window left
-      geo.placeCuboid(ED, (housePosition[0] + 3, housePosition[1] + 2, housePosition[2]), (housePosition[0] + 3, housePosition[1] + 5, housePosition[2]), Block("glass_pane"))
-
-      # place window right
-      geo.placeCuboid(ED, (housePosition[0] + houseWidth - 3, housePosition[1] + 2, housePosition[2]), (housePosition[0] + houseWidth - 3, housePosition[1] + 5, housePosition[2]), Block("glass_pane"))
-
-      # place big window center
-      geo.placeCuboid(ED, (housePosition[0] + (houseWidth / 2) - 2, housePosition[1] + 2, housePosition[2]), (housePosition[0] + (houseWidth/2) + 2, housePosition[1] + 5, housePosition[2]), Block("glass_pane"))
 
 
 
