@@ -1,5 +1,23 @@
 #!/usr/bin/env python3
 
+
+# # Saving the heights to a file
+# heights = WORLDSLICE.heightmaps["MOTION_BLOCKING_NO_LEAVES"]
+# print("heights: ", heights);
+# np.savez('depth.npz', heights)
+
+# # Loading the file
+# heightsLoaded = np.load('depth.npz')['arr_0']
+# print(heightsLoaded)
+
+# # Plotting the file oyeah
+# plt.imshow(heightsLoaded)
+# plt.show()
+
+
+
+
+
 # RANDOM THINGS
 
 # random: color (purple, pink or white)
@@ -223,8 +241,20 @@ ROADHEIGHT = 0
 # /setbuildarea 0 -60 0 10 -50 10
 
 
-heights = WORLDSLICE.heightmaps["MOTION_BLOCKING_NO_LEAVES"]
+#     In this function we're building a simple wall around the build area
+#         pillar-by-pillar, which means we can adjust to the terrain height
+#     """
+#     # HEIGHTMAP
+#     # Heightmaps are an easy way to get the uppermost block at any coordinate
+#     # There are four types available in a world slice:
+#     # - 'WORLD_SURFACE': The top non-air blocks
+#     # - 'MOTION_BLOCKING': The top blocks with a hitbox or fluid
+#     # - 'MOTION_BLOCKING_NO_LEAVES': Like MOTION_BLOCKING but ignoring leaves
+#     # - 'OCEAN_FLOOR': The top solid blocks
+#     heights = WORLDSLICE.heightmaps["MOTION_BLOCKING_NO_LEAVES"]
 # print("heights: ", heights);
+heights = WORLDSLICE.heightmaps["OCEAN_FLOOR"]
+
 
 # show heights in plot:
 # plt.imshow(heights, interpolation="none")
@@ -236,67 +266,129 @@ minHouseWidth = 10
 minHouseDepth = 7
 minHouseHeight = 5
 
-sameValueGroups = []
-for index in enumerate(heights):
-      sameValueGroups.append([])
+sameValueGroupsPerRow = []
 
-# print(len(sameValueGroups))
-for ri, row in enumerate(heights):
-      sameValueGroupCurrentIndex = 0
-      sameValueGroups[ri].append({"height": 0, "coordinates":[]})
+def calculateArea(): 
+      for index in enumerate(heights):
+            sameValueGroupsPerRow.append([])
 
-
-      for ci, col in enumerate(row):
-            # print([ri, ci], ": ", col)
-            if(col == row[ci - 1]):
-                  # sameValueGroupCurrentIndex 
-                  # print("previous was the same value.")
-                  sameValueGroups[ri][sameValueGroupCurrentIndex]['coordinates'].append([ri, ci])
-
-            else:
-                  # print('hoi', sameValueGroups[ri][sameValueGroupCurrentIndex]["coordinates"])
-                  sameValueGroupCurrentIndex += 1
-                  sameValueGroups[ri].append({"height":col, "coordinates": []})
-                  # print('hoi2', sameValueGroups[ri][sameValueGroupCurrentIndex])
-                  sameValueGroups[ri][sameValueGroupCurrentIndex]['coordinates'].append([ri, ci])
+      # print(len(sameValueGroupsPerRow))
+      for ri, row in enumerate(heights):
+            sameValueGroupCurrentIndex = 0
+            # sameValueGroupsPerRow[ri].append({"height": 0, "coordinates":[]})
 
 
-for sameValueGroup in sameValueGroups:
-      print(sameValueGroup)
-# print("samevaluegroups: ", sameValueGroups)
+            for ci, col in enumerate(row):
+                  # print([ri, ci], ": ", col)
+                  if(ci > 0):
+                        print("ci: ", ci)
+                              
+                        if(col == row[ci - 1]):
+                              # sameValueGroupCurrentIndex 
+                              # print("previous was the same value.")
+                              sameValueGroupsPerRow[ri][sameValueGroupCurrentIndex]['coordinates'].append([ri, ci])
+
+                        else:
+                              # print('hoi', sameValueGroupsPerRow[ri][sameValueGroupCurrentIndex]["coordinates"])
+                              sameValueGroupCurrentIndex += 1
+                              sameValueGroupsPerRow[ri].append({"height":col, "coordinates": []})
+                              # print('hoi2', sameValueGroupsPerRow[ri][sameValueGroupCurrentIndex])
+                              sameValueGroupsPerRow[ri][sameValueGroupCurrentIndex]['coordinates'].append([ri, ci])
+                  else:
+                        print('CI == 0')
+                        sameValueGroupsPerRow[ri].append({"height":col, "coordinates": []})
+                        sameValueGroupsPerRow[ri][sameValueGroupCurrentIndex]['coordinates'].append([ri, ci])
+
+      # for sameValueGroup in sameValueGroupsPerRow:
+      #       print(sameValueGroup)
+      # print("sameValueGroupsPerRow: ", sameValueGroupsPerRow)
+      print("sameValueGroupsPerRow of row 1", sameValueGroupsPerRow[1])
 
 
-def get_size(group):
-      # print('group', group)
-      return len(group['coordinates'])
-
-
-for index, row in enumerate(sameValueGroups):
-      # if(index < sameValueGroups.count - 2):
-      # print("index", index)
-      # row = currentSameValueGroup[index]
-      rowGroupsBigToSmall = []
-      for group in enumerate(row):
-
-            # currentSameValueGroup = group
+      def get_size(group):
             # print('group', group)
-            print(index)
-            size = len(group[1]['coordinates'])
-            coordinates = group[1]['coordinates']
-            print('size', size)
+            return len(group['coordinates'])
 
-            # sort groups from big to small
-            # if(rowGroupsBigToSmall.count == 0):
-            #       rowGroupsBigToSmall.append(group)
-            # else:
-            #       if(size < row)
+      def minMaxValueGroups(group):
+            groupSize = len(group['coordinates'])
+            # startX = group['coordinates'][0][0]
+            startZ = group['coordinates'][0][1]
+            # endX = group['coordinates'][groupSize][0]
+            endZ = group['coordinates'][groupSize-1][1]
+            return {
+                  "height": group['height'],
+                  # "startX": group['coordinates'][0][0],
+                  "startZ": startZ,
+                  # "endX": group['coordinates'][groupSize-1][0],
+                  "endZ": endZ,
+                  "size":  (endZ - startZ) + 1
+            }
+
+      def addSize(group):
+            groupSize = len(group['coordinates'])
+            # startX = group['coordinates'][0][0]
+            startZ = group['coordinates'][0][1]
+            # endX = group['coordinates'][groupSize][0]
+            endZ = group['coordinates'][groupSize-1][1]
+            return {
+                  "height": group['height'],
+                  "coordinates": group['coordinates'],
+                  "size":  (endZ - startZ) + 1
+            }
+
+
+
+      # map the row groups
+      # for index, row in enumerate(sameValueGroupsPerRow):
+      #       row.sort(key=get_size, reverse = True)
+      #       result = map(minMaxValueGroups, row)
+      #       sameValueGroupsPerRow[index] = list(result)
       
-      row.sort(key=get_size)
-      print("row groupsss", row)
-            # print("current", currentSameValueGroup)
-      # nextSameValueGroup = sameValueGroups[index+1]
 
-      # if(currentSameValueGroup)
+      for index, row in enumerate(sameValueGroupsPerRow):
+            row.sort(key=get_size, reverse = True)
+            result = map(addSize, row)
+            sameValueGroupsPerRow[index] = list(result)
+      
+      print('firstsamevaluegroup:', sameValueGroupsPerRow[0])
+            # if(currentSameValueGroup)
+      
+      print(len(sameValueGroupsPerRow))
+
+      smallestAllowedAreaSize = np.minimum(minHouseWidth, minHouseDepth)
+
+      sameValueGroupsPerColumn = []
+      sameValueGroupsPerColumnCurrentIndex = 0
+      # counter = 0;
+
+      
+      for index, row in enumerate(sameValueGroupsPerRow):
+            print(row)
+            if(row[0]['size'] < smallestAllowedAreaSize):
+                  return
+            else:
+                  if(index > 0):
+                        # if(row[0]['height'] == sameValueGroupsPerRow[index - 1][0]['height']):
+                        #       print("jahoor")
+                        #       print(index, index-1)
+
+                        if(row[0]['height'] == sameValueGroupsPerRow[index - 1][0]['height']):
+                              print("jahoor")
+
+                              print(index, index-1)
+                              isInArray = np.isin(np.array(row[0]['coordinates']), np.array(sameValueGroupsPerRow[index - 1][0]['coordinates']))
+                              print("is in array: ", isInArray)
+
+                              
+                              # sameValueGroupsPerColumn[sameValueGroupCurrentIndex].append({'height': row[0]['height']})
+
+                  else:
+                        sameValueGroupsPerColumn.append({'height': row[0]['height']})
+                        sameValueGroupsPerColumnCurrentIndex += 1
+
+
+      # print(sameValueGroupsPerColumn)
+
 # if a situation occurs where there are at least 10 (minHouseWidth) samevaluegroup coordinates starting with 3 ([3, 3] [3,4] [3,5]..) and  7 rows are the same but with different first coordinate ([4,3] [4,4] [4,5] and [5,3] [5,4] [5,5] and [6,3] [6,4] [6,5] etc. then build a house there. otherwise chop trees around biggest spot.)
 # for x in range(0, 10 + 1):
 #     # The northern wall
@@ -323,39 +415,8 @@ for index, row in enumerate(sameValueGroups):
 
 
 # search good spot that fits a house
-houseWidth = 10
-houseHeight = 5
-houseDepth = 7
 
-wallThickness = 1
-floorThickness = 1
-
-housePosition = (STARTX, STARTY, STARTZ)
-
-# # place house
-# geo.placeCuboidHollow(ED, housePosition, (housePosition[0] + houseWidth, housePosition[1] + houseHeight, housePosition[2] + houseDepth), Block("pink_concrete"));
-
-# # cut out wall
-# geo.placeCuboid(ED, (housePosition[0] + wallThickness, housePosition[1] + floorThickness, housePosition[2] + houseDepth - wallThickness), (housePosition[0] + houseWidth - wallThickness, housePosition[1] + houseHeight - floorThickness, housePosition[2] + houseDepth), Block("air"));
-
-# # place floor
-# geo.placeRect(ED, Rect((housePosition[0]+wallThickness,housePosition[2]+wallThickness),(houseWidth - wallThickness, houseDepth)), housePosition[1], Block("sandstone"))
-
-# # place window left
-# geo.placeCuboid(ED, (housePosition[0] + 3, housePosition[1] + 2, housePosition[2]), (housePosition[0] + 3, housePosition[1] + 5, housePosition[2]), Block("glass_pane"))
-
-# # place window right
-# geo.placeCuboid(ED, (housePosition[0] + houseWidth - 3, housePosition[1] + 2, housePosition[2]), (housePosition[0] + houseWidth - 3, housePosition[1] + 5, housePosition[2]), Block("glass_pane"))
-
-# # place big window center
-# geo.placeCuboid(ED, (housePosition[0] + (houseWidth / 2) - 2, housePosition[1] + 2, housePosition[2]), (housePosition[0] + (houseWidth/2) + 2, housePosition[1] + 5, housePosition[2]), Block("glass_pane"))
-
-
-
-
-
-# # search good spot that fits a house
-# houseWidth = 20
+# houseWidth = 10
 # houseHeight = 5
 # houseDepth = 7
 
@@ -364,23 +425,56 @@ housePosition = (STARTX, STARTY, STARTZ)
 
 # housePosition = (STARTX, STARTY, STARTZ)
 
-# # place house
+# # # place house
 # # geo.placeCuboidHollow(ED, housePosition, (housePosition[0] + houseWidth, housePosition[1] + houseHeight, housePosition[2] + houseDepth), Block("pink_concrete"));
 
-# # cut out wall
+# # # cut out wall
 # # geo.placeCuboid(ED, (housePosition[0] + wallThickness, housePosition[1] + floorThickness, housePosition[2] + houseDepth - wallThickness), (housePosition[0] + houseWidth - wallThickness, housePosition[1] + houseHeight - floorThickness, housePosition[2] + houseDepth), Block("air"));
 
-# # place floor
+# # # place floor
 # # geo.placeRect(ED, Rect((housePosition[0]+wallThickness,housePosition[2]+wallThickness),(houseWidth - wallThickness, houseDepth)), housePosition[1], Block("sandstone"))
 
-# # place window left
-# geo.placeCuboid(ED, (housePosition[0] + 3, housePosition[1] + 2, housePosition[2]), (housePosition[0] + 3, housePosition[1] + 5, housePosition[2]), Block("glass_pane"))
+# # # place window left
+# # geo.placeCuboid(ED, (housePosition[0] + 3, housePosition[1] + 2, housePosition[2]), (housePosition[0] + 3, housePosition[1] + 5, housePosition[2]), Block("glass_pane"))
 
-# # place window right
-# geo.placeCuboid(ED, (housePosition[0] + houseWidth - 3, housePosition[1] + 2, housePosition[2]), (housePosition[0] + houseWidth - 3, housePosition[1] + 5, housePosition[2]), Block("glass_pane"))
+# # # place window right
+# # geo.placeCuboid(ED, (housePosition[0] + houseWidth - 3, housePosition[1] + 2, housePosition[2]), (housePosition[0] + houseWidth - 3, housePosition[1] + 5, housePosition[2]), Block("glass_pane"))
 
-# # place big window center
-# geo.placeCuboid(ED, (housePosition[0] + (houseWidth / 2) - 2, housePosition[1] + 2, housePosition[2]), (housePosition[0] + (houseWidth/2) + 2, housePosition[1] + 5, housePosition[2]), Block("glass_pane"))
+# # # place big window center
+# # geo.placeCuboid(ED, (housePosition[0] + (houseWidth / 2) - 2, housePosition[1] + 2, housePosition[2]), (housePosition[0] + (houseWidth/2) + 2, housePosition[1] + 5, housePosition[2]), Block("glass_pane"))
+
+
+
+
+def makeHouse():
+
+      # search good spot that fits a house
+      houseWidth = 20
+      houseHeight = 5
+      houseDepth = 7
+
+      wallThickness = 1
+      floorThickness = 1
+
+      housePosition = (STARTX, STARTY, STARTZ)
+
+      # place house
+      # geo.placeCuboidHollow(ED, housePosition, (housePosition[0] + houseWidth, housePosition[1] + houseHeight, housePosition[2] + houseDepth), Block("pink_concrete"));
+
+      # cut out wall
+      # geo.placeCuboid(ED, (housePosition[0] + wallThickness, housePosition[1] + floorThickness, housePosition[2] + houseDepth - wallThickness), (housePosition[0] + houseWidth - wallThickness, housePosition[1] + houseHeight - floorThickness, housePosition[2] + houseDepth), Block("air"));
+
+      # place floor
+      # geo.placeRect(ED, Rect((housePosition[0]+wallThickness,housePosition[2]+wallThickness),(houseWidth - wallThickness, houseDepth)), housePosition[1], Block("sandstone"))
+
+      # place window left
+      geo.placeCuboid(ED, (housePosition[0] + 3, housePosition[1] + 2, housePosition[2]), (housePosition[0] + 3, housePosition[1] + 5, housePosition[2]), Block("glass_pane"))
+
+      # place window right
+      geo.placeCuboid(ED, (housePosition[0] + houseWidth - 3, housePosition[1] + 2, housePosition[2]), (housePosition[0] + houseWidth - 3, housePosition[1] + 5, housePosition[2]), Block("glass_pane"))
+
+      # place big window center
+      geo.placeCuboid(ED, (housePosition[0] + (houseWidth / 2) - 2, housePosition[1] + 2, housePosition[2]), (housePosition[0] + (houseWidth/2) + 2, housePosition[1] + 5, housePosition[2]), Block("glass_pane"))
 
 
 
@@ -417,7 +511,7 @@ housePosition = (STARTX, STARTY, STARTZ)
 
 
 
-
+calculateArea()
 
 
 
