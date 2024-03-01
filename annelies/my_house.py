@@ -196,6 +196,7 @@ from gdpc import editor_tools as et
 
 
 import numpy as np
+from numpy import *
 import matplotlib.pyplot as plt
 
 
@@ -307,12 +308,104 @@ sameValueGroupsPerRow = []
 waterOrLavaAreas = []
 
 
-def buildRaft():
-      print('waterorLavaareas', waterOrLavaAreas)
-      plt.imshow(waterOrLavaAreas)
-      plt.show()
+# def buildRaft():
+#       print('waterorLavaareas', waterOrLavaAreas)
+#       plt.imshow(waterOrLavaAreas)
+#       plt.show()
 
-def makeHouse(posX, posY, posZ, width, depth):
+#       for index in enumerate(heights):
+#             waterOrLavaAreas.append(list(np.full(LASTZ-STARTZ,  -1)))
+
+#       for index in enumerate(heights):
+#             sameValueGroupsPerRow.append([])
+
+#       for ri, row in enumerate(heights):
+#             sameValueGroupCurrentIndex = 0
+
+#             for ci, col in enumerate(row):
+#                   if(ci > 0):
+#                         # check if block it not water or lava.
+#                         block = WORLDSLICE.getBlock((ri, col-1, ci))
+#                         print("block", block)
+#                         if(col == row[ci - 1] and block.id not in ["minecraft:water", "minecraft:lava"]):
+#                               sameValueGroupsPerRow[ri][sameValueGroupCurrentIndex]['coordinates'].append(ci)
+#                         else:
+#                               sameValueGroupCurrentIndex += 1
+#                               sameValueGroupsPerRow[ri].append({"height":col, "coordinates": []})
+#                               sameValueGroupsPerRow[ri][sameValueGroupCurrentIndex]['type'] =  block.id
+#                               if(block.id in ["minecraft:water", "minecraft:lava"]):
+#                                     waterOrLavaAreas[ri][ci-1] = col
+#                               else:
+#                                     sameValueGroupsPerRow[ri][sameValueGroupCurrentIndex]['coordinates'].append(ci)
+#                   else:
+#                         sameValueGroupsPerRow[ri].append({"height":col, "coordinates": []})
+#                         sameValueGroupsPerRow[ri][sameValueGroupCurrentIndex]['coordinates'].append(ci)
+
+
+#       # Filter out the groups that have no coordinates.
+#       for index, row in enumerate(sameValueGroupsPerRow):
+#             sameValueGroupsPerRow[index] = list(filter(has_coordinates, row))
+
+
+#       for index, row in enumerate(sameValueGroupsPerRow):
+#             row.sort(key=get_size, reverse = True)
+#             result = map(addSize, row)
+#             sameValueGroupsPerRow[index] = list(result)
+
+#       sameValueGroupsPerColumn = []
+#       sameValueGroupsPerColumnCurrentIndex = 0
+
+#       for index, row in enumerate(sameValueGroupsPerRow):
+#             previousRow = sameValueGroupsPerRow[index - 1]
+#             previousRow.sort(key=get_size, reverse = True)
+
+#             row.sort(key=get_size, reverse = True)
+#             if(row[0]['size'] < minHouseDepth):
+#                   print('return')
+#                   break
+#             else:
+#                   if(index > 0):
+#                         if(row[0]['height'] == previousRow[0]['height'] and len(intersection(sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], row[0]['coordinates'])) > 0):
+#                               sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'] = intersection(sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], row[0]['coordinates'])
+#                               if(index == len(sameValueGroupsPerRow) - 1):
+#                                     sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex] = {"height": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['height'], "coordinates": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], "startRow": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['startRow'], "endRow": index - 1}
+
+#                         else:
+#                               sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex] = {"height": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['height'], "coordinates": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], "startRow": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['startRow'], "endRow": index - 1}
+#                               sameValueGroupsPerColumnCurrentIndex += 1
+#                               sameValueGroupsPerColumn.append({'height': row[0]['height'], 'startRow': index, 'coordinates':  row[0]['coordinates'], "endRow": 0})
+#                   else:
+#                         sameValueGroupsPerColumn.append({'height': row[0]['height'], 'startRow': index, 'coordinates': row[0]['coordinates'], "endRow": 0})
+
+      
+
+      
+#       # map the sameValueGroupsPerColumn array
+#       bigAreas = map(mapSameValueGroupsPerColumn, sameValueGroupsPerColumn)
+#       # filter out the width smaller than minallowedwidthsize
+#       bigAreas = filter(width_is_bigger_than_minimum, bigAreas)
+
+#       bigAreas = list(bigAreas)
+#       bigAreas.sort(key=get_surface_size, reverse=True)
+
+
+#       print("bigAreas (", len(bigAreas), "):", bigAreas)
+#       # if(len(bigAreas) == 0):
+
+def makeRoom(smallArea):
+      print("smallArea:", smallArea)
+      print("minhouseDepth: ", minHouseDepth)
+      print("minhouseWidth: ", minHouseWidth)
+      if(smallArea['width'] >= minHouseDepth and smallArea['depth'] >= minHouseWidth ):
+            print("minhouseWidth: ", minHouseWidth)
+            
+            makeHouse(smallArea['startX'], smallArea['height'], smallArea['startZ'], smallArea['depth'], smallArea['width'], rotated=True)
+
+            # biggestArea['startX'], biggestArea['height'], biggestArea['startZ'], randint(minHouseWidth, maxPossbileWidth), randint(minHouseDepth, maxPossbileDepth)
+
+      
+
+def makeHouse(posX, posY, posZ, width, depth, rotated=False):
       print("Make house!")
 
       # search good spot that fits a house
@@ -333,7 +426,10 @@ def makeHouse(posX, posY, posZ, width, depth):
       geo.placeCuboidHollow(ED, housePosition, (housePosition[0] + houseWidth, housePosition[1] + houseHeight, housePosition[2] + houseDepth), Block("pink_concrete"));
 
       # cut out wall
-      geo.placeCuboid(ED, (housePosition[0] + wallThickness, housePosition[1] + floorThickness, housePosition[2] + houseDepth - wallThickness), (housePosition[0] + houseWidth - wallThickness, housePosition[1] + houseHeight - floorThickness, housePosition[2] + houseDepth), Block("air"));
+      if(rotated):
+            geo.placeCuboid(ED, (housePosition[0] - wallThickness, housePosition[1] + floorThickness, housePosition[2] + wallThickness), (housePosition[0] + houseWidth - wallThickness, housePosition[1] + houseHeight - floorThickness, housePosition[2] + houseDepth - wallThickness), Block("air"));
+      else:
+            geo.placeCuboid(ED, (housePosition[0] + wallThickness, housePosition[1] + floorThickness, housePosition[2] + houseDepth - wallThickness), (housePosition[0] + houseWidth - wallThickness, housePosition[1] + houseHeight - floorThickness, housePosition[2] + houseDepth), Block("air"));
 
       # place floor
       geo.placeRect(ED, Rect((housePosition[0]+wallThickness,housePosition[2]+wallThickness),(houseWidth - wallThickness, houseDepth)), housePosition[1], Block("sandstone"))
@@ -356,14 +452,24 @@ def makeHouse(posX, posY, posZ, width, depth):
 def get_surface_size(a):
       return a['surfaceSize']
 
+def get_width(a):
+      return a['width']
+
 def get_size(group):
+      # print("size:", len(group['coordinates']))
       return len(group['coordinates'])
 
 def has_coordinates(group):
       return len(group['coordinates']) > 0
 
-def has_more_coordinates_than_minimum(group):
-      return group['width'] > minHouseWidth
+def width_is_bigger_than_minimum(group):
+      print("hello", group)
+      if(group['width'] >= minHouseWidth):
+            print("hello", True)
+            return True
+      print("hello", False)
+      return False
+      # return (group['width'] >= minHouseWidth)
 
 def minMaxValueGroups(group):
       groupSize = len(group['coordinates'])
@@ -437,7 +543,6 @@ def calculateArea():
                   if(ci > 0):
                         # check if block it not water or lava.
                         block = WORLDSLICE.getBlock((ri, col-1, ci))
-                        print("block", block)
                         if(col == row[ci - 1] and block.id not in ["minecraft:water", "minecraft:lava"]):
                               sameValueGroupsPerRow[ri][sameValueGroupCurrentIndex]['coordinates'].append(ci)
                         else:
@@ -466,17 +571,36 @@ def calculateArea():
       sameValueGroupsPerColumn = []
       sameValueGroupsPerColumnCurrentIndex = 0
 
+      # def findAreaInRow(g, previousRow, gi, sameValueGroupsPerColumnCurrentIndex):
+      #       print("aaa", sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex])
+      #       if(gi < len(previousRow)):
+      #             if(g['height'] == previousRow[gi]['height'] and len(intersection(sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], g['coordinates'])) >= minHouseDepth):
+      #                   return intersection(sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], g['coordinates'])
+      #                   # if(index == len(sameValueGroupsPerRow) - 1):
+      #                   #       sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex] = {"height": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['height'], "coordinates": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], "startRow": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['startRow'], "endRow": index - 1}
+      #             else:
+      #                   findAreaInRow(g, previousRow, gi+1, sameValueGroupsPerColumnCurrentIndex)
+      #       else:
+      #             print("bbb")
+      #             return []
+      #       # else:
+      #       #       sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex] = {"height": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['height'], "coordinates": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], "startRow": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['startRow'], "endRow": index - 1}
+      #       #       sameValueGroupsPerColumnCurrentIndex += 1
+      #       #       sameValueGroupsPerColumn.append({'height': g['height'], 'startRow': index, 'coordinates':  g['coordinates'], "endRow": 0})
+
       for index, row in enumerate(sameValueGroupsPerRow):
             previousRow = sameValueGroupsPerRow[index - 1]
             previousRow.sort(key=get_size, reverse = True)
 
             row.sort(key=get_size, reverse = True)
-            if(row[0]['size'] < minHouseDepth):
+            # We only compare the first group of each row.
+            # The first group is always the biggest, since we sorted it. 
+            if(row[0]['size'] < minHouseDepth):  
                   print('return')
                   break
             else:
                   if(index > 0):
-                        if(row[0]['height'] == previousRow[0]['height'] and len(intersection(sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], row[0]['coordinates'])) > 0):
+                        if(row[0]['height'] == previousRow[0]['height'] and len(intersection(sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], row[0]['coordinates'])) >= minHouseDepth):
                               sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'] = intersection(sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], row[0]['coordinates'])
                               if(index == len(sameValueGroupsPerRow) - 1):
                                     sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex] = {"height": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['height'], "coordinates": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], "startRow": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['startRow'], "endRow": index - 1}
@@ -489,14 +613,65 @@ def calculateArea():
                         sameValueGroupsPerColumn.append({'height': row[0]['height'], 'startRow': index, 'coordinates': row[0]['coordinates'], "endRow": 0})
 
       
+            # for gi, g in enumerate(row):
+            #       print("g: ", g)
+            #       if(g['size'] < minHouseDepth):
+            #             print('return')
+            #             break
+            #       else:
+            #             if(index > 0):
+            #                   sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'] = findAreaInRow(g, previousRow, gi, sameValueGroupsPerColumnCurrentIndex)
+            #                   # if(g['height'] == previousRow[gi]['height'] and len(intersection(sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], row[0]['coordinates'])) >= minHouseDepth):
+            #                   #       sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'] = intersection(sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], row[0]['coordinates'])
+            #                   #       if(index == len(sameValueGroupsPerRow) - 1):
+            #                   #             sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex] = {"height": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['height'], "coordinates": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], "startRow": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['startRow'], "endRow": index - 1}
+
+            #                   # else:
+            #                   #       sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex] = {"height": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['height'], "coordinates": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], "startRow": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['startRow'], "endRow": index - 1}
+            #                   #       sameValueGroupsPerColumnCurrentIndex += 1
+            #                   #       sameValueGroupsPerColumn.append({'height': g['height'], 'startRow': index, 'coordinates':  g['coordinates'], "endRow": 0})
+            #             else:
+            #                   sameValueGroupsPerColumn.append({'height': g['height'], 'startRow': index, 'coordinates': g['coordinates'], "endRow": 0})
+
+            
 
       
       # map the sameValueGroupsPerColumn array
       bigAreas = map(mapSameValueGroupsPerColumn, sameValueGroupsPerColumn)
-      # filter out the width smaller than minallowedwidthsize
-      bigAreas = filter(has_more_coordinates_than_minimum, bigAreas)
-
       bigAreas = list(bigAreas)
+      # print("bigareas before filter", list(bigAreas))
+      # bigAreas = array(bigAreas)
+      # smallerAreas = bigAreas.copy()
+      smallerAreas = bigAreas[:]
+
+      # smallerAreas = smallerAreas.tolist()
+      # bigAreas = bigAreas.tolist()
+      print("1 bigareas",  bigAreas)
+
+
+      # filter out the width smaller than minallowedwidthsize
+      # smallerAreas = array(list(bigAreas)).copy()
+      # smallerAreas = list(smallerAreas)
+      # smallerAreas.clear()
+      # print("smallerareas", list(smallerAreas))
+      # filter(width_is_bigger_than_minimum, smallerAreas)
+      # smallerAreas = list(smallerAreas)
+      # sort, so the first item is the area with the biggest width
+      smallerAreas.sort(key=get_width, reverse=True)
+
+
+      # bigAreas = list(bigAreas)
+      bigAreas = filter(width_is_bigger_than_minimum, bigAreas)
+      bigAreas = list(bigAreas)
+
+
+      print("Bigareas", bigAreas)
+      # smallerAreas = list(smallerAreas)
+
+      print("smallerAreas", smallerAreas)
+      # smallerAreas = list(smallerAreas)
+      # print("smallerAreas", smallerAreas)
+
       bigAreas.sort(key=get_surface_size, reverse=True)
 
 
@@ -511,12 +686,15 @@ def calculateArea():
             # 1.  Try the same functions again, but this time don't exclude the water.
             #     If the biggest area appears to be water/lava, build a raft to place a house on..
             
-            buildRaft()
+            # buildRaft()
 
             # 2.  If this is not the case, and the biggest area is not just water,
             #     the area is probably a forest or an area with many mountains.
             #     In that case, find the biggest area and fill the blocking areas with "air" blocks.
             #     So cut out a part of the area. 
+
+            # we use the biggest area from the array of areas that were too small for the minimum house measures
+            makeRoom(smallerAreas[0])
 
             # After these emergency functions have been successfully executed,
             # try the original function again to find a good spot for the house.
