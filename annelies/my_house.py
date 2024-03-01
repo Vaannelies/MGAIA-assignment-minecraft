@@ -307,6 +307,10 @@ sameValueGroupsPerRow = []
 waterOrLavaAreas = []
 
 
+def buildRaft():
+      print('waterorLavaareas', waterOrLavaAreas)
+      plt.imshow(waterOrLavaAreas)
+      plt.show()
 
 def makeHouse(posX, posY, posZ, width, depth):
       print("Make house!")
@@ -349,15 +353,79 @@ def makeHouse(posX, posY, posZ, width, depth):
       return
 
 
+def get_surface_size(a):
+      return a['surfaceSize']
+
+def get_size(group):
+      return len(group['coordinates'])
+
+def has_coordinates(group):
+      return len(group['coordinates']) > 0
+
+def has_more_coordinates_than_minimum(group):
+      return group['width'] > minHouseWidth
+
+def minMaxValueGroups(group):
+      groupSize = len(group['coordinates'])
+      startZ = group['coordinates'][0]
+      endZ = group['coordinates'][groupSize-1]
+      return {
+            "height": group['height'],
+            "startZ": startZ,
+            "endZ": endZ,
+            "size":  (endZ - startZ) + 1
+      }
+
+def addSize(group):
+      groupSize = len(group['coordinates'])
+      startZ = group['coordinates'][0]
+      endZ = group['coordinates'][groupSize-1]
+      return {
+            "height": group['height'],
+            "coordinates": group['coordinates'],
+            "size":  (endZ - startZ) + 1
+      }
+
+def intersection(list_a, list_b):
+      return [ e for e in list_a if e in list_b ]
+
+def mapSameValueGroupsPerColumn(g):
+      startX =  g['startRow']
+      endX = g['endRow']
+      if(len(g['coordinates']) > 0):
+            startZ = g['coordinates'][0] 
+      else:
+            startZ = 0
+      if(len(g['coordinates']) > 0):
+            endZ = g['coordinates'][len(g['coordinates']) - 1] 
+      else:
+            endZ = 0
+      width = endX - startX + 1
+      depth = endZ - startZ + 1
+
+      if(len(g['coordinates']) == 0):
+            width = 0
+            depth = 0
+      
+
+      return {
+            'height': g['height'],
+            'startX': startX,
+            'startZ': startZ,
+            'endX': endX,
+            'endZ': endZ,
+            'width': width,
+            'depth': depth,
+            'surfaceSize': width * depth
+      }
+
+
+
 def calculateArea(): 
       # reset waterOrLavaAreas
-      waterOrLavaAreas = []
+      waterOrLavaAreas.clear
       for index in enumerate(heights):
-            waterOrLavaAreas.append(list(np.zeros(LASTZ-STARTZ,  dtype=np.int64)))
-
-      # print('waterorLavaareas', waterOrLavaAreas)
-
-      
+            waterOrLavaAreas.append(list(np.full(LASTZ-STARTZ,  -1)))
 
       for index in enumerate(heights):
             sameValueGroupsPerRow.append([])
@@ -365,60 +433,24 @@ def calculateArea():
       for ri, row in enumerate(heights):
             sameValueGroupCurrentIndex = 0
 
-
             for ci, col in enumerate(row):
                   if(ci > 0):
-                              
                         # check if block it not water or lava.
-                        blockName = WORLDSLICE.getBlock((ri, col-1, ci)).id
-                        if(col == row[ci - 1] and blockName not in ["minecraft:water", "minecraft:lava"]):
+                        block = WORLDSLICE.getBlock((ri, col-1, ci))
+                        print("block", block)
+                        if(col == row[ci - 1] and block.id not in ["minecraft:water", "minecraft:lava"]):
                               sameValueGroupsPerRow[ri][sameValueGroupCurrentIndex]['coordinates'].append(ci)
-
                         else:
                               sameValueGroupCurrentIndex += 1
                               sameValueGroupsPerRow[ri].append({"height":col, "coordinates": []})
-                              sameValueGroupsPerRow[ri][sameValueGroupCurrentIndex]['type'] =  WORLDSLICE.getBlock((ri, col-1, ci))
-                              if(blockName in ["minecraft:water", "minecraft:lava"]):
-                                    waterOrLavaAreas[ri][ci-1] = 1
+                              sameValueGroupsPerRow[ri][sameValueGroupCurrentIndex]['type'] =  block.id
+                              if(block.id in ["minecraft:water", "minecraft:lava"]):
+                                    waterOrLavaAreas[ri][ci-1] = col
                               else:
                                     sameValueGroupsPerRow[ri][sameValueGroupCurrentIndex]['coordinates'].append(ci)
                   else:
                         sameValueGroupsPerRow[ri].append({"height":col, "coordinates": []})
                         sameValueGroupsPerRow[ri][sameValueGroupCurrentIndex]['coordinates'].append(ci)
-
-
-      def get_size(group):
-            return len(group['coordinates'])
-      
-      def has_coordinates(group):
-            return len(group['coordinates']) > 0
-      
-      def has_more_coordinates_than_minimum(group):
-            return group['width'] > minHouseWidth
-
-      def minMaxValueGroups(group):
-            groupSize = len(group['coordinates'])
-            startZ = group['coordinates'][0]
-            endZ = group['coordinates'][groupSize-1]
-            return {
-                  "height": group['height'],
-                  "startZ": startZ,
-                  "endZ": endZ,
-                  "size":  (endZ - startZ) + 1
-            }
-
-      def addSize(group):
-            groupSize = len(group['coordinates'])
-            startZ = group['coordinates'][0]
-            endZ = group['coordinates'][groupSize-1]
-            return {
-                  "height": group['height'],
-                  "coordinates": group['coordinates'],
-                  "size":  (endZ - startZ) + 1
-            }
-
-      def intersection(list_a, list_b):
-            return [ e for e in list_a if e in list_b ]
 
 
       # Filter out the groups that have no coordinates.
@@ -430,8 +462,6 @@ def calculateArea():
             row.sort(key=get_size, reverse = True)
             result = map(addSize, row)
             sameValueGroupsPerRow[index] = list(result)
-      
-
 
       sameValueGroupsPerColumn = []
       sameValueGroupsPerColumnCurrentIndex = 0
@@ -458,49 +488,16 @@ def calculateArea():
                   else:
                         sameValueGroupsPerColumn.append({'height': row[0]['height'], 'startRow': index, 'coordinates': row[0]['coordinates'], "endRow": 0})
 
-      def mapSameValueGroupsPerColumn(g):
-            startX =  g['startRow']
-            endX = g['endRow']
-            if(len(g['coordinates']) > 0):
-                  startZ = g['coordinates'][0] 
-            else:
-                  startZ = 0
-            if(len(g['coordinates']) > 0):
-                  endZ = g['coordinates'][len(g['coordinates']) - 1] 
-            else:
-                  endZ = 0
-            width = endX - startX + 1
-            depth = endZ - startZ + 1
-
-            if(len(g['coordinates']) == 0):
-               width = 0
-               depth = 0
-            
-
-            return {
-                  'height': g['height'],
-                  'startX': startX,
-                  'startZ': startZ,
-                  'endX': endX,
-                  'endZ': endZ,
-                  'width': width,
-                  'depth': depth,
-                  'surfaceSize': width * depth
-            }
       
-      def get_surface_size(a):
-            return a['surfaceSize']
+
       
       # map the sameValueGroupsPerColumn array
       bigAreas = map(mapSameValueGroupsPerColumn, sameValueGroupsPerColumn)
-
       # filter out the width smaller than minallowedwidthsize
       bigAreas = filter(has_more_coordinates_than_minimum, bigAreas)
 
-
       bigAreas = list(bigAreas)
       bigAreas.sort(key=get_surface_size, reverse=True)
-
 
 
       print("bigAreas (", len(bigAreas), "):", bigAreas)
@@ -513,10 +510,8 @@ def calculateArea():
 
             # 1.  Try the same functions again, but this time don't exclude the water.
             #     If the biggest area appears to be water/lava, build a raft to place a house on..
-
-            # print('waterorLavaareas', waterOrLavaAreas)
-            # plt.imshow(waterOrLavaAreas)
-            # plt.show()
+            
+            buildRaft()
 
             # 2.  If this is not the case, and the biggest area is not just water,
             #     the area is probably a forest or an area with many mountains.
