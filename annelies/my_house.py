@@ -38,7 +38,7 @@
 
 # crimson_flanks
 # stripped_crimson_hyphae
-# amethyst block
+# amethyst_block
 # purpur_block
 # chorus_flower
 # purple_terracotta
@@ -254,7 +254,7 @@ ROADHEIGHT = 0
 #     # - 'OCEAN_FLOOR': The top solid blocks
 #     heights = WORLDSLICE.heightmaps["MOTION_BLOCKING_NO_LEAVES"]
 # print("heights: ", heights);
-heights = WORLDSLICE.heightmaps["MOTION_BLOCKING"]
+heights = WORLDSLICE.heightmaps["MOTION_BLOCKING_NO_LEAVES"]
 
 
 # show heights in plot:
@@ -269,6 +269,9 @@ minHouseHeight = 5
 
 maxHouseWidth = 25
 maxHouseDepth = 10
+
+wallThickness = 1
+floorThickness = 1
 
 sameValueGroupsPerRow = []
 
@@ -392,7 +395,7 @@ waterOrLavaAreas = []
 #       print("bigAreas (", len(bigAreas), "):", bigAreas)
 #       # if(len(bigAreas) == 0):
 
-def makeRoom(smallArea):
+def placeRotatedHouse(smallArea):
       print("smallArea:", smallArea)
       print("minhouseDepth: ", minHouseDepth)
       print("minhouseWidth: ", minHouseWidth)
@@ -400,10 +403,29 @@ def makeRoom(smallArea):
             print("minhouseWidth: ", minHouseWidth)
             
             makeHouse(smallArea['startX'], smallArea['height'], smallArea['startZ'], smallArea['depth'], smallArea['width'], rotated=True)
-
+            return True
             # biggestArea['startX'], biggestArea['height'], biggestArea['startZ'], randint(minHouseWidth, maxPossbileWidth), randint(minHouseDepth, maxPossbileDepth)
-
+      else:
+            return False
       
+def makeRoom(smallArea):
+      print("Make some room voor the house")
+      extraWidthNeeded = minHouseWidth - smallArea['width']
+      extraDepthNeeded = minHouseDepth - smallArea['depth']
+      
+
+      geo.placeCuboid(ED, (STARTX + smallArea['startX'] - extraWidthNeeded, smallArea['height'], STARTZ + smallArea['startZ'] - extraDepthNeeded), (STARTX + smallArea['startX'] + smallArea['width'], smallArea['height'] + minHouseHeight, STARTZ + smallArea['startZ'] + smallArea['depth']), Block('air'))
+
+      #  place platform in case it is requird
+      geo.placeRect(ED, Rect((STARTX + smallArea['startX'] - extraWidthNeeded, STARTZ + smallArea['startZ'] - extraDepthNeeded), (minHouseWidth + (wallThickness), minHouseDepth + (wallThickness))), smallArea['height'] - 1, Block("sandstone"))
+      
+      
+      # #  place platform in case it is requird
+      # geo.placeCuboid(ED, (STARTX + smallArea['startX'] - extraWidthNeeded, STARTZ + smallArea['startZ'] - extraDepthNeeded), 1, 1), smallArea['height'] - 1, Block("sandstone"))
+      
+      makeHouse(smallArea['startX'] - extraWidthNeeded, smallArea['height'], smallArea['startZ'] - extraDepthNeeded, minHouseWidth, minHouseDepth, rotated=False)
+
+
 
 def makeHouse(posX, posY, posZ, width, depth, rotated=False):
       print("Make house!")
@@ -416,8 +438,6 @@ def makeHouse(posX, posY, posZ, width, depth, rotated=False):
       houseHeight = 5
       houseDepth = depth
 
-      wallThickness = 1
-      floorThickness = 1
 
       # housePosition = (STARTX, STARTY, STARTZ)
       housePosition = (STARTX + posX, posY, STARTZ+posZ)
@@ -443,6 +463,34 @@ def makeHouse(posX, posY, posZ, width, depth, rotated=False):
 
       # place big window center
       geo.placeCuboid(ED, (housePosition[0] + (houseWidth / 2) - 2, housePosition[1] + 2, housePosition[2]), (housePosition[0] + (houseWidth/2) + 2, housePosition[1] + 5, housePosition[2]), Block("glass_pane"))
+      
+      
+      # place roof 
+      geo.placeRect(ED, Rect((housePosition[0] - (wallThickness),housePosition[2] - (wallThickness)),(houseWidth + (wallThickness + 2), houseDepth + (wallThickness + 2))), housePosition[1] + houseHeight + 1, Block("sandstone"))
+      geo.placeRect(ED, Rect((housePosition[0] - (wallThickness),housePosition[2]),(houseWidth + (wallThickness + 2), houseDepth + (wallThickness))), housePosition[1] + houseHeight + 2, Block("sandstone"))
+      geo.placeRect(ED, Rect((housePosition[0] - (wallThickness),housePosition[2] + (wallThickness)),(houseWidth + (wallThickness + 2), houseDepth + (wallThickness - 2))), housePosition[1] + houseHeight + 3, Block("sandstone"))
+      geo.placeRect(ED, Rect((housePosition[0] - (wallThickness),housePosition[2] + (wallThickness + 1)),(houseWidth + (wallThickness + 2), houseDepth + (wallThickness - 4))), housePosition[1] + houseHeight + 4, Block("sandstone"))
+
+
+
+      # place stairs
+      stairsWidth = houseHeight - 2
+      houseDepth = 1
+      minSpaceFromWall = 1
+      stairsLeftToRight = True if randint(0,1) else False
+
+      # if(stairsLeftToRight):
+      stairsStartX = housePosition[0] + randint(wallThickness + 1, houseWidth - stairsWidth)
+      geo.placeLine(ED, (stairsStartX, housePosition[1] + floorThickness, housePosition[2]+wallThickness+1), (stairsStartX + stairsWidth, housePosition[1] + floorThickness, housePosition[2]+wallThickness+1), Block('amethyst_block') )
+      geo.placeLine(ED, (stairsStartX + 1, housePosition[1] + floorThickness + 1, housePosition[2]+wallThickness+1), (stairsStartX + stairsWidth, housePosition[1] + floorThickness + 1, housePosition[2]+wallThickness+1), Block('amethyst_block') )
+      geo.placeLine(ED, (stairsStartX + 2, housePosition[1] + floorThickness + 2, housePosition[2]+wallThickness+1), (stairsStartX + stairsWidth, housePosition[1] + floorThickness + 2, housePosition[2]+wallThickness+1), Block('amethyst_block') )
+
+      # this line below does not work if y position is the same at the beginning and the end of the line. Because then it's not a line I guess. Maybe just put a normal block here.
+      geo.placeLine(ED, (stairsStartX + 3, housePosition[1] + floorThickness + 3, housePosition[2]+wallThickness+1), (stairsStartX + stairsWidth, housePosition[1] + floorThickness + 2, housePosition[2]+wallThickness+1), Block('amethyst_block') )
+      # geo.placeLine(ED, (stairsStartX + 4, housePosition[1] + floorThickness + 4, housePosition[2]+wallThickness+1), (stairsStartX + stairsWidth, housePosition[1] + floorThickness + 4, housePosition[2]+wallThickness+1), Block('amethyst_block') )
+
+      # Also, a loop is needed probably.
+
 
       print("Make house!")
 
@@ -462,9 +510,9 @@ def get_size(group):
 def has_coordinates(group):
       return len(group['coordinates']) > 0
 
-def width_is_bigger_than_minimum(group):
+def width_and_depth_is_bigger_than_minimum(group):
       print("hello", group)
-      if(group['width'] >= minHouseWidth):
+      if(group['width'] >= minHouseWidth and group['depth'] >= minHouseDepth):
             print("hello", True)
             return True
       print("hello", False)
@@ -595,22 +643,23 @@ def calculateArea():
             row.sort(key=get_size, reverse = True)
             # We only compare the first group of each row.
             # The first group is always the biggest, since we sorted it. 
-            if(row[0]['size'] < minHouseDepth):  
-                  print('return')
-                  break
-            else:
-                  if(index > 0):
-                        if(row[0]['height'] == previousRow[0]['height'] and len(intersection(sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], row[0]['coordinates'])) >= minHouseDepth):
-                              sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'] = intersection(sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], row[0]['coordinates'])
-                              if(index == len(sameValueGroupsPerRow) - 1):
-                                    sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex] = {"height": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['height'], "coordinates": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], "startRow": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['startRow'], "endRow": index - 1}
-
-                        else:
+            # if(row[0]['size'] < minHouseDepth):  
+            #       print('return')
+            #       print('row:', row[0])
+            #       break
+            # else:
+            if(index > 0):
+                  if(row[0]['height'] == previousRow[0]['height'] and len(intersection(sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], row[0]['coordinates'])) >= minHouseDepth):
+                        sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'] = intersection(sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], row[0]['coordinates'])
+                        if(index == len(sameValueGroupsPerRow) - 1):
                               sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex] = {"height": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['height'], "coordinates": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], "startRow": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['startRow'], "endRow": index - 1}
-                              sameValueGroupsPerColumnCurrentIndex += 1
-                              sameValueGroupsPerColumn.append({'height': row[0]['height'], 'startRow': index, 'coordinates':  row[0]['coordinates'], "endRow": 0})
+
                   else:
-                        sameValueGroupsPerColumn.append({'height': row[0]['height'], 'startRow': index, 'coordinates': row[0]['coordinates'], "endRow": 0})
+                        sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex] = {"height": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['height'], "coordinates": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], "startRow": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['startRow'], "endRow": index - 1}
+                        sameValueGroupsPerColumnCurrentIndex += 1
+                        sameValueGroupsPerColumn.append({'height': row[0]['height'], 'startRow': index, 'coordinates':  row[0]['coordinates'], "endRow": 0})
+            else:
+                  sameValueGroupsPerColumn.append({'height': row[0]['height'], 'startRow': index, 'coordinates': row[0]['coordinates'], "endRow": 0})
 
       
             # for gi, g in enumerate(row):
@@ -661,7 +710,7 @@ def calculateArea():
 
 
       # bigAreas = list(bigAreas)
-      bigAreas = filter(width_is_bigger_than_minimum, bigAreas)
+      bigAreas = filter(width_and_depth_is_bigger_than_minimum, bigAreas)
       bigAreas = list(bigAreas)
 
 
@@ -683,18 +732,22 @@ def calculateArea():
             # Engage emergency functions.
             # (To make some room for the house.)
 
-            # 1.  Try the same functions again, but this time don't exclude the water.
+            # 1.  Try rotating the house!
+            #     we use the biggest area from the array of areas that were too small for the minimum house measures
+            done = placeRotatedHouse(smallerAreas[0])
+
+
+            # 2.  Try the same functions again, but this time don't exclude the water.
             #     If the biggest area appears to be water/lava, build a raft to place a house on..
             
             # buildRaft()
 
-            # 2.  If this is not the case, and the biggest area is not just water,
+            # 3.  If this is not the case, and the biggest area is not just water,
             #     the area is probably a forest or an area with many mountains.
             #     In that case, find the biggest area and fill the blocking areas with "air" blocks.
             #     So cut out a part of the area. 
-
-            # we use the biggest area from the array of areas that were too small for the minimum house measures
-            makeRoom(smallerAreas[0])
+            if(not(done)):
+                  makeRoom(smallerAreas[0])
 
             # After these emergency functions have been successfully executed,
             # try the original function again to find a good spot for the house.
