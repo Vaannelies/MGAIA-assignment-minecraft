@@ -356,15 +356,8 @@ def calculateArea():
 
                         
 
-            # print("sameValueGroupsPerRow: (", ri, ")", sameValueGroupsPerRow)
-      # for sameValueGroup in sameValueGroupsPerRow:
-      #       print(sameValueGroup)
-      # print("sameValueGroupsPerRow: ", sameValueGroupsPerRow)
-      # print("sameValueGroupsPerRow of row 1", sameValueGroupsPerRow[1])
-
-
       def get_size(group):
-            # print('group', group)
+            print('group', len(group['coordinates']))
             return len(group['coordinates'])
       
       def has_coordinates(group):
@@ -443,8 +436,11 @@ def calculateArea():
       for index, row in enumerate(sameValueGroupsPerRow):
             # print(row)
             previousRow = sameValueGroupsPerRow[index - 1]
+            previousRow.sort(key=get_size, reverse = True)
+
+            print("sorted", row)
             # print("currentindex:", sameValueGroupsPerColumnCurrentIndex)
-            print(row[0]['size'])
+            row.sort(key=get_size, reverse = True)
             if(row[0]['size'] < minHouseDepth):
                   print('return')
                   break
@@ -540,17 +536,40 @@ def calculateArea():
       bigAreas.sort(key=get_surface_size, reverse=True)
 
       print("bigAreas (", len(bigAreas), "):", bigAreas)
-      biggestArea = bigAreas[0]
+      if(len(bigAreas) == 0):
+            # THERE ARE NO AREAS BIG ENOUGH! :(
+            print("THERE ARE NO AREAS BIG ENOUGH! :(")
 
-      print("BIGGEST AREA IS:", biggestArea)
+            # Engage emergency functions.
+            # (To make some room for the house.)
 
-      # print(WORLDSLICE.getBlock((biggestArea['startX'], biggestArea['height']-1, biggestArea['startZ'])))
+            # 1.  Try the same functions again, but this time don't exclude the water.
+            #     If the biggest area appears to be water/lava, build a raft to place a house on..
 
-      maxPossbileWidth = biggestArea['width'] if biggestArea['width'] < maxHouseWidth else maxHouseWidth
-      maxPossbileDepth = biggestArea['depth'] if biggestArea['depth'] < maxHouseDepth else maxHouseDepth
-      makeHouse(biggestArea['startX'], biggestArea['height'], biggestArea['startZ'], randint(minHouseWidth, maxPossbileWidth), randint(minHouseDepth, maxPossbileDepth))
+            # 2.  If this is not the case, and the biggest area is not just water,
+            #     the area is probably a forest or an area with many mountains.
+            #     In that case, find the biggest area and fill the blocking areas with "air" blocks.
+            #     So cut out a part of the area. 
 
-      return 
+            # After these emergency functions have been successfully executed,
+            # try the original function again to find a good spot for the house.
+
+            # If that works, build the house anyway.
+            # If there is somehow still no place to build the house, give up... :(
+
+            print(bigAreas)
+      else:
+            biggestArea = bigAreas[0]
+
+            print("BIGGEST AREA IS:", biggestArea)
+
+            # print(WORLDSLICE.getBlock((biggestArea['startX'], biggestArea['height']-1, biggestArea['startZ'])))
+
+            maxPossbileWidth = biggestArea['width'] if biggestArea['width'] < maxHouseWidth else maxHouseWidth
+            maxPossbileDepth = biggestArea['depth'] if biggestArea['depth'] < maxHouseDepth else maxHouseDepth
+            makeHouse(biggestArea['startX'], biggestArea['height'], biggestArea['startZ'], randint(minHouseWidth, maxPossbileWidth), randint(minHouseDepth, maxPossbileDepth))
+
+            return 
 
 
       # plt.imshow(bigAreas)
