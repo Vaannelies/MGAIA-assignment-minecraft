@@ -474,19 +474,53 @@ def makeHouse(posX, posY, posZ, width, depth, rotated=False):
 
 
       # place stairs
-      stairsWidth = houseHeight - 2
+      stairsWidth = houseHeight - 1
       houseDepth = 1
       minSpaceFromWall = 1
       stairsLeftToRight = True if randint(0,1) else False
 
       # if(stairsLeftToRight):
-      stairsStartX = housePosition[0] + randint(wallThickness + 1, houseWidth - stairsWidth)
-      geo.placeLine(ED, (stairsStartX, housePosition[1] + floorThickness, housePosition[2]+wallThickness+1), (stairsStartX + stairsWidth, housePosition[1] + floorThickness, housePosition[2]+wallThickness+1), Block('amethyst_block') )
-      geo.placeLine(ED, (stairsStartX + 1, housePosition[1] + floorThickness + 1, housePosition[2]+wallThickness+1), (stairsStartX + stairsWidth, housePosition[1] + floorThickness + 1, housePosition[2]+wallThickness+1), Block('amethyst_block') )
-      geo.placeLine(ED, (stairsStartX + 2, housePosition[1] + floorThickness + 2, housePosition[2]+wallThickness+1), (stairsStartX + stairsWidth, housePosition[1] + floorThickness + 2, housePosition[2]+wallThickness+1), Block('amethyst_block') )
+      stairsStartX = housePosition[0] + randint(wallThickness * 2, houseWidth - stairsWidth)
 
-      # this line below does not work if y position is the same at the beginning and the end of the line. Because then it's not a line I guess. Maybe just put a normal block here.
-      geo.placeLine(ED, (stairsStartX + 3, housePosition[1] + floorThickness + 3, housePosition[2]+wallThickness+1), (stairsStartX + stairsWidth, housePosition[1] + floorThickness + 2, housePosition[2]+wallThickness+1), Block('amethyst_block') )
+      for i in range(stairsWidth + 1):
+            print("I:", i)
+            if(i < stairsWidth):
+                  geo.placeCuboid(ED, (stairsStartX + i, housePosition[1] + floorThickness + i, housePosition[2]+(wallThickness * 2)), (stairsStartX + i, housePosition[1] + floorThickness + i, housePosition[2]+(wallThickness * 2)), Block('purpur_stairs', {"facing": "east"}) )
+                  geo.placeCuboid(ED, (stairsStartX + i + 1, housePosition[1] + floorThickness + i, housePosition[2]+(wallThickness * 2)), (stairsStartX + i + 1, housePosition[1] + floorThickness + i, housePosition[2]+(wallThickness * 2)), Block('purpur_block') )
+      
+            if(i == stairsWidth):
+                  geo.placeCuboid(ED, (stairsStartX, housePosition[1] + floorThickness + i, housePosition[2]+wallThickness+1), (stairsStartX + stairsWidth, housePosition[1] + floorThickness + i, housePosition[2]+wallThickness+1), Block('air') )
+                  geo.placeCuboid(ED, (stairsStartX + stairsWidth, housePosition[1] + floorThickness + i, housePosition[2]+wallThickness+1), (stairsStartX + stairsWidth, housePosition[1] + floorThickness + i, housePosition[2]+wallThickness+1), Block('purpur_stairs', {"facing": "east"} ) )
+
+
+            # if(i == 0):
+                  # geo.placeCuboid(ED, (stairsStartX + i, housePosition[1] + floorThickness + i, housePosition[2]+(wallThickness * 2)), (stairsStartX + i, housePosition[1] + floorThickness + i, housePosition[2]+(wallThickness * 2)), Block('purpur_stairs') )
+                  # geo.placeCuboid(ED, (stairsStartX + i + 1, housePosition[1] + floorThickness + i, housePosition[2]+(wallThickness * 2)), (stairsStartX + i + 1, housePosition[1] + floorThickness + i, housePosition[2]+(wallThickness * 2)), Block('purpur_block') )
+            # elif(i == stairsWidth):
+            #       # geo.placeCuboid(ED, (stairsStartX + stairsWidth, housePosition[1] + floorThickness + i, housePosition[2]+(wallThickness * 2)), (stairsStartX + stairsWidth, housePosition[1] + floorThickness + i, housePosition[2]+(wallThickness * 2)), Block('amethyst_block') )
+            #       geo.placeCuboid(ED, (stairsStartX + stairsWidth, housePosition[1] + floorThickness + i, housePosition[2]+(wallThickness * 2)), (stairsStartX + stairsWidth, housePosition[1] + floorThickness + i, housePosition[2]+(wallThickness * 2)), Block('purpur_block') )
+            # else:
+            # # geo.placeLine(ED, (stairsStartX + i, housePosition[1] + floorThickness + i, housePosition[2]+(wallThickness*2)), (stairsStartX + stairsWidth, housePosition[1] + floorThickness + i, housePosition[2]+(wallThickness*2)), Block('amethyst_block') )
+            #       geo.placeLine(ED, (stairsStartX + i, housePosition[1] + floorThickness + i, housePosition[2]+(wallThickness*2)), (stairsStartX + stairsWidth, housePosition[1] + floorThickness + i, housePosition[2]+(wallThickness*2)), Block('purpur_block') )
+
+
+
+      
+      
+      # geo.placeLine(ED, (stairsStartX, housePosition[1] + floorThickness, housePosition[2]+wallThickness+1), (stairsStartX + stairsWidth, housePosition[1] + floorThickness, housePosition[2]+wallThickness+1), Block('amethyst_block') )
+      # geo.placeLine(ED, (stairsStartX + 1, housePosition[1] + floorThickness + 1, housePosition[2]+wallThickness+1), (stairsStartX + stairsWidth, housePosition[1] + floorThickness + 1, housePosition[2]+wallThickness+1), Block('amethyst_block') )
+
+      
+      # geo.placeLine(ED, (stairsStartX, housePosition[1] + floorThickness, housePosition[2]+wallThickness+1), (stairsStartX + stairsWidth, housePosition[1] + floorThickness, housePosition[2]+wallThickness+1), Block('amethyst_block') )
+      # geo.placeLine(ED, (stairsStartX + 1, housePosition[1] + floorThickness + 1, housePosition[2]+wallThickness+1), (stairsStartX + stairsWidth, housePosition[1] + floorThickness + 1, housePosition[2]+wallThickness+1), Block('amethyst_block') )
+      # geo.placeLine(ED, (stairsStartX + 2, housePosition[1] + floorThickness + 2, housePosition[2]+wallThickness+1), (stairsStartX + stairsWidth, housePosition[1] + floorThickness + 2, housePosition[2]+wallThickness+1), Block('amethyst_block') )
+
+      # # this line below does not work if y position is the same at the beginning and the end of the line. Because then it's not a line I guess. Maybe just put a normal block here.
+      # # geo.placeLine(ED, (stairsStartX + 3, housePosition[1] + floorThickness + 3, housePosition[2]+wallThickness+1), (stairsStartX + stairsWidth, housePosition[1] + floorThickness + 2, housePosition[2]+wallThickness+1), Block('amethyst_block') )
+      # geo.placeCuboid(ED, (stairsStartX + 3, housePosition[1] + floorThickness + 3, housePosition[2]+wallThickness+1), (stairsStartX + stairsWidth, housePosition[1] + floorThickness + 3, housePosition[2]+wallThickness+1), Block('amethyst_block') )
+      
+      # # place gap in ceiling
+      # geo.placeCuboid(ED, (stairsStartX, housePosition[1] + floorThickness + 4, housePosition[2]+wallThickness+1), (stairsStartX + stairsWidth, housePosition[1] + floorThickness + 4, housePosition[2]+wallThickness+1), Block('air') )
       # geo.placeLine(ED, (stairsStartX + 4, housePosition[1] + floorThickness + 4, housePosition[2]+wallThickness+1), (stairsStartX + stairsWidth, housePosition[1] + floorThickness + 4, housePosition[2]+wallThickness+1), Block('amethyst_block') )
 
       # Also, a loop is needed probably.
