@@ -558,15 +558,15 @@ def makeHouse(posX, posY, posZ, width, depth, rotated=False):
 
              # room for bathroom left from the stairs
             roomOnTheLeft = stairsStartX - housePosition[0]
-            if(roomOnTheLeft >= 5):
+            if(roomOnTheLeft >= 6):
                   makeBathRoom(randint(housePosition[0], (housePosition[0] + roomOnTheLeft) - 5), housePosition[1] + roomHeight, housePosition[2] + wallThickness, True)
-            elif(roomOnTheLeft >= 3):
-                  makeSmallBathRoom(housePosition[0], housePosition[1] + roomHeight, housePosition[2] + wallThickness)
+            elif(roomOnTheLeft >= 4):
+                  makeSmallBathRoom(housePosition[0] + wallThickness, housePosition[1] + roomHeight, housePosition[2] + wallThickness)
             else:
-                  roomOnTheRight = (housePosition[0] + houseWidth) - stairsStartX 
+                  roomOnTheRight = (housePosition[0] + houseWidth) - (stairsStartX + stairsWidth)
                   if(roomOnTheRight >= 6):
                         makeBathRoom(randint(stairsStartX, (stairsStartX + roomOnTheRight) - 6), housePosition[1] + roomHeight, housePosition[2] + wallThickness, False)
-                  elif(roomOnTheRight >= 3):
+                  elif(roomOnTheRight >= 4):
                         makeSmallBathRoom(stairsStartX, housePosition[1] + roomHeight, housePosition[2] + wallThickness)
        
       # # if(stairsLeftToRight):
@@ -590,14 +590,14 @@ def makeHouse(posX, posY, posZ, width, depth, rotated=False):
             roomOnTheRight = (housePosition[0] + houseWidth) - stairsStartX 
             if(roomOnTheRight >= 6):
                   makeBathRoom(randint(stairsStartX, (stairsStartX + roomOnTheRight) - 6), housePosition[1] + roomHeight, housePosition[2] + wallThickness, False)
-            elif(roomOnTheRight >= 3):
+            elif(roomOnTheRight >= 4):
                   makeSmallBathRoom(stairsStartX, housePosition[1] + roomHeight, housePosition[2] + wallThickness)
             else:
-                  roomOnTheLeft = stairsStartX - housePosition[0]
-                  if(roomOnTheLeft >= 5):
+                  roomOnTheLeft = (stairsStartX - stairsWidth) - housePosition[0]
+                  if(roomOnTheLeft >= wallThickness + 6 + 1):
                         makeBathRoom(randint(housePosition[0], (housePosition[0] + roomOnTheLeft) - 5), housePosition[1] + roomHeight, housePosition[2] + wallThickness, True)
-                  elif(roomOnTheLeft >= 3):
-                        makeSmallBathRoom(housePosition[0], housePosition[1] + roomHeight, housePosition[2] + wallThickness)
+                  elif(roomOnTheLeft >= wallThickness + 3 + 1):
+                        makeSmallBathRoom(housePosition[0]+1, housePosition[1] + roomHeight, housePosition[2] + wallThickness)
 
       # make either one or 2 flower paintings on the wall
       twoFlowerPaintings = randint(0,1)
