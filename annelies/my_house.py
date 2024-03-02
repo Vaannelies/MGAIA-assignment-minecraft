@@ -619,11 +619,14 @@ def makeHouse(posX, posY, posZ, width, depth, rotated=False):
       geo.placeCuboid(ED, (housePosition[0] + round(houseWidth/2) - 1, housePosition[1] + floorThickness, housePosition[2] + houseDepth - 2), (housePosition[0] + round(houseWidth/2) + 1, housePosition[1] + floorThickness, housePosition[2] + houseDepth - 2), Block('crimson_trapdoor', {"facing": "north", "open": "true", "half":"bottom"}))
       geo.placeCuboid(ED, (housePosition[0] + round(houseWidth/2) - 1, housePosition[1] + floorThickness, housePosition[2] + houseDepth), (housePosition[0] + round(houseWidth/2) + 1, housePosition[1] + floorThickness, housePosition[2] + houseDepth), Block('crimson_trapdoor', {"facing": "south", "open": "true", "half":"bottom"}))
       geo.placeCuboid(ED, (housePosition[0] + round(houseWidth/2) - 1, housePosition[1] + floorThickness, housePosition[2] + houseDepth - 1), (housePosition[0] + round(houseWidth/2) + 1, housePosition[1] + floorThickness, housePosition[2] + houseDepth - 1), Block('quartz_slab', {"type": "top"}))
+      geo.placeCuboid(ED, (housePosition[0] + round(houseWidth/2), housePosition[1] + floorThickness + 1, housePosition[2] + houseDepth - 1), (housePosition[0] + round(houseWidth/2), housePosition[1] + floorThickness + 1, housePosition[2] + houseDepth - 1), Block('pink_candle_cake', {"lit": "true"}))
 
+      geo.placeCuboid(ED, (housePosition[0] + round(houseWidth/2) - 2, housePosition[1] + floorThickness, housePosition[2] + houseDepth - 1), (housePosition[0] + round(houseWidth/2) - 2, housePosition[1] + floorThickness, housePosition[2] + houseDepth - 1), Block('crimson_stairs', {"facing": "west"}))
+      geo.placeCuboid(ED, (housePosition[0] + round(houseWidth/2) + 2, housePosition[1] + floorThickness, housePosition[2] + houseDepth - 1), (housePosition[0] + round(houseWidth/2) + 2, housePosition[1] + floorThickness, housePosition[2] + houseDepth - 1), Block('crimson_stairs', {"facing": "east"}))
                   
-      # add new floor
                   
       # make bed + nightstand
+      geo.placeCuboid(ED, (housePosition[0] + houseWidth - (wallThickness * 2), housePosition[1] + floorThickness + roomHeight, housePosition[2] + houseDepth - 2), (housePosition[0] + houseWidth - (wallThickness * 2), housePosition[1] + floorThickness + roomHeight, housePosition[2] + houseDepth - 2), Block('pink_bed', {"facing": "east"}))
       
       # make rug
                   
