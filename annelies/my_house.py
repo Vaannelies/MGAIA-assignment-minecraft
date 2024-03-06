@@ -185,6 +185,7 @@ This file is not meant to be imported.
 # We are giving these modules shorter, but distinct, names for convenience
 
 import logging
+import time
 from random import randint
 
 from termcolor import colored
@@ -425,17 +426,31 @@ def makeRoom(smallArea):
       top = STARTZ + smallArea['startZ'] - extraDepthNeeded
       bottom = STARTZ + smallArea['startZ'] + smallArea['depth']
 
-      geo.placeCuboid(ED, (left, smallArea['height'], top), (right, smallArea['height'] + minRoomHeight * levels, bottom), Block('air'))
+      geo.placeCuboid(ED, (left, smallArea['height'], top), (right, smallArea['height'] + minRoomHeight * levels + 6, bottom), Block('air'))
+      worldSliceAfterMakeRoom = ED.loadWorldSlice(BUILD_AREA.toRect(), cache=True)  # this take
+      heightsAfterMakeRoom = worldSliceAfterMakeRoom.heightmaps["OCEAN_FLOOR"]
+      # show heights in plot:
+      # plt.imshow(heightsAfterMakeRoom, interpolation="none")
+      # plt.colorbar()
+      # plt.show()
 
       #  place platform in case it is requird
       geo.placeRect(ED, Rect((left, top), (minHouseWidth + (wallThickness), minHouseDepth + (wallThickness))), smallArea['height'] - 1, Block("barrel"))
-      
+      print("left: ", left)
+      print("right: ", right)
+      print("top: ", top)
+      print("bottom: ", bottom)
+      print("")
+      print("STARTX:", STARTX)
+      print("left - startx", left - STARTX)
+      print("top - startz", top - STARTZ)
+      # print("left - startx", left - STARTX)
+      # print("top - startz", top - STARTZ)
       print("extrawidthNeeded:", smallArea)
-      heightsAfterMakeRoom = WORLDSLICE.heightmaps["OCEAN_FLOOR"]
-      blockHeightAtCornerTopLeft = heightsAfterMakeRoom[left - STARTX][top - STARTZ]
-      blockHeightAtCornerBottomLeft = heightsAfterMakeRoom[left - STARTX][bottom - STARTZ]
-      blockHeightAtCornerTopRight = heightsAfterMakeRoom[right - STARTX][top - STARTZ]
-      blockHeightAtCornerBottomRight = heightsAfterMakeRoom[right - STARTX][bottom - STARTZ]
+      blockHeightAtCornerTopLeft = heightsAfterMakeRoom[left - STARTX - 1][top - STARTZ - 1]
+      blockHeightAtCornerBottomLeft = heightsAfterMakeRoom[left - STARTX - 1][bottom - STARTZ - 1]
+      blockHeightAtCornerTopRight = heightsAfterMakeRoom[right - STARTX - 1][top - STARTZ - 1]
+      blockHeightAtCornerBottomRight = heightsAfterMakeRoom[right - STARTX - 1][bottom - STARTZ - 1]
 
       print("height: ", blockHeightAtCornerTopLeft)
       print("height: ", blockHeightAtCornerBottomLeft)
@@ -448,9 +463,7 @@ def makeRoom(smallArea):
       geo.placeCuboid(ED, (right, smallArea['height'], top), (right, blockHeightAtCornerTopRight, top), Block('barrel'))
       geo.placeCuboid(ED, (right, smallArea['height'], bottom), (right, blockHeightAtCornerBottomRight, bottom), Block('barrel'))
       
-      # #  place platform in case it is requird
-      # geo.placeCuboid(ED, (STARTX + smallArea['startX'] - extraWidthNeeded, STARTZ + smallArea['startZ'] - extraDepthNeeded), 1, 1), smallArea['height'] - 1, Block("sandstone"))
-      
+
       makeHouse(smallArea['startX'] - extraWidthNeeded, smallArea['height'], smallArea['startZ'] - extraDepthNeeded, minHouseWidth, minHouseDepth, rotated=False)
 
 
@@ -502,7 +515,11 @@ def makeHouse(posX, posY, posZ, width, depth, rotated=False):
       geo.placeRectOutline(ED, Rect((housePosition[0] - (wallThickness),housePosition[2] - (wallThickness)),(houseWidth + (wallThickness + 2), houseDepth + (wallThickness + 2))), housePosition[1] + houseHeight, Block("smooth_quartz"))
       geo.placeRect(ED, Rect((housePosition[0] - (wallThickness) + 1,housePosition[2]),(houseWidth + (wallThickness), houseDepth + (wallThickness))), housePosition[1] + houseHeight + 2, Block("smooth_quartz_slab"))
 
-      
+      geo.placeRect(ED, Rect((housePosition[0] - (wallThickness),housePosition[2] + (wallThickness)),(houseWidth + (wallThickness + 2), houseDepth + (wallThickness - 2))), housePosition[1] + houseHeight + 3, Block("sandstone"))
+      geo.placeRect(ED, Rect((housePosition[0] - (wallThickness),housePosition[2] + (wallThickness + 1)),(houseWidth + (wallThickness + 2), houseDepth + (wallThickness - 4))), housePosition[1] + houseHeight + 4, Block("sandstone"))
+      geo.placeRect(ED, Rect((housePosition[0] - (wallThickness),housePosition[2] + (wallThickness + 2)),(houseWidth + (wallThickness + 2), houseDepth + (wallThickness - 6))), housePosition[1] + houseHeight + 5, Block("sandstone"))
+      geo.placeRect(ED, Rect((housePosition[0] - (wallThickness),housePosition[2] + (wallThickness + 3)),(houseWidth + (wallThickness + 2), houseDepth + (wallThickness - 8))), housePosition[1] + houseHeight + 6, Block("sandstone"))
+
       # # make room divider
       # level = 0
       # roomDividerDepth = 4
@@ -655,8 +672,12 @@ def makeHouse(posX, posY, posZ, width, depth, rotated=False):
       geo.placeCuboid(ED, (housePosition[0] + round(houseWidth/2) - 1, housePosition[1] + floorThickness, housePosition[2] + houseDepth - 1), (housePosition[0] + round(houseWidth/2) + 1, housePosition[1] + floorThickness, housePosition[2] + houseDepth - 1), Block('quartz_slab', {"type": "top"}))
       geo.placeCuboid(ED, (housePosition[0] + round(houseWidth/2), housePosition[1] + floorThickness + 1, housePosition[2] + houseDepth - 1), (housePosition[0] + round(houseWidth/2), housePosition[1] + floorThickness + 1, housePosition[2] + houseDepth - 1), Block('pink_candle_cake', {"lit": "true"}))
 
-      geo.placeCuboid(ED, (housePosition[0] + round(houseWidth/2) - 2, housePosition[1] + floorThickness, housePosition[2] + houseDepth - 1), (housePosition[0] + round(houseWidth/2) - 2, housePosition[1] + floorThickness, housePosition[2] + houseDepth - 1), Block('crimson_stairs', {"facing": "west"}))
-      geo.placeCuboid(ED, (housePosition[0] + round(houseWidth/2) + 2, housePosition[1] + floorThickness, housePosition[2] + houseDepth - 1), (housePosition[0] + round(houseWidth/2) + 2, housePosition[1] + floorThickness, housePosition[2] + houseDepth - 1), Block('crimson_stairs', {"facing": "east"}))
+      twoChairs = randint(0,1)
+      if(twoChairs == 1):      
+            geo.placeCuboid(ED, (housePosition[0] + round(houseWidth/2) - 2, housePosition[1] + floorThickness, housePosition[2] + houseDepth - 1), (housePosition[0] + round(houseWidth/2) - 2, housePosition[1] + floorThickness, housePosition[2] + houseDepth - 1), Block('crimson_stairs', {"facing": "west"}))
+            geo.placeCuboid(ED, (housePosition[0] + round(houseWidth/2) + 2, housePosition[1] + floorThickness, housePosition[2] + houseDepth - 1), (housePosition[0] + round(houseWidth/2) + 2, housePosition[1] + floorThickness, housePosition[2] + houseDepth - 1), Block('crimson_stairs', {"facing": "east"}))
+      else: 
+            geo.placeCuboid(ED, (housePosition[0] + round(houseWidth/2) - 1, housePosition[1] + floorThickness, housePosition[2] + houseDepth - 2), (housePosition[0] + round(houseWidth/2) + 1, housePosition[1] + floorThickness, housePosition[2] + houseDepth - 2), Block('crimson_stairs', {"facing": "north"}))
                   
 
       # place some item frames on the walls
@@ -801,6 +822,12 @@ def width_and_depth_is_bigger_than_minimum(group):
       print("hello", False)
       return False
       # return (group['width'] >= minHouseWidth)
+
+def fits_inside_buildarea(area):
+      extraWidthNeeded = minHouseWidth - area['width']
+      extraDepthNeeded = minHouseDepth - area['depth']
+     
+      return True if (area['startX'] - extraWidthNeeded >= 0) and (area['startZ'] - extraDepthNeeded >= 0) else False
 
 def minMaxValueGroups(group):
       groupSize = len(group['coordinates'])
@@ -1032,7 +1059,18 @@ def calculateArea():
             #     In that case, find the biggest area and fill the blocking areas with "air" blocks.
             #     So cut out a part of the area. 
             if(not(done)):
-                  makeRoom(smallerAreas[0])
+                  # In the 'smallerAreas' list, filter out the spaces that are too close to the buildarea limit.
+                  smallerAreas = filter(fits_inside_buildarea, smallerAreas)
+                  smallerAreas = list(smallerAreas)
+                  
+                  if(len(smallerAreas) > 0):
+                        makeRoom(smallerAreas[0])
+                  else:
+                        print("There is no room at all. I will just make room for the house in the corner of the build area.")
+                        if((LASTX - STARTX >= minHouseWidth) and (LASTZ - STARTZ >= minHouseDepth)): # check whether the house fits inside the build area
+                              makeRoom({"height": heights[0][0], "startX": 0, "startZ": 0, "endX": minHouseWidth - 1, "endZ": minHouseDepth - 1, "width": minHouseWidth, "depth": minHouseDepth, "surfaceSize": minHouseWidth * minHouseDepth })
+                        else:
+                              print("It is impossible to build the house in such a small build area!")
 
             # After these emergency functions have been successfully executed,
             # try the original function again to find a good spot for the house.
