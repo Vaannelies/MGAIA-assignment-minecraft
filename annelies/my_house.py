@@ -256,7 +256,7 @@ ROADHEIGHT = 0
 # print("heights: ", heights);
 heights = WORLDSLICE.heightmaps["MOTION_BLOCKING_NO_LEAVES"]
 
-
+print(heights)
 # show heights in plot:
 # plt.imshow(heights, interpolation="none")
 # plt.colorbar()
@@ -269,6 +269,12 @@ minRoomHeight = 7
 
 maxHouseWidth = 25
 maxHouseDepth = 10
+levels = 2
+
+# geo.placeCuboid(ED, (STARTX, STARTY+120, STARTZ), (LASTX, STARTY+120, STARTZ), Block("sandstone"));
+# geo.placeCuboid(ED, (STARTX, STARTY+120, STARTZ), (STARTX, STARTY+120, LASTZ), Block("sandstone"));
+
+
 
 wallThickness = 1
 floorThickness = 1
@@ -414,16 +420,33 @@ def makeRoom(smallArea):
       extraDepthNeeded = minHouseDepth - smallArea['depth']
       
 
-      geo.placeCuboid(ED, (STARTX + smallArea['startX'] - extraWidthNeeded, smallArea['height'], STARTZ + smallArea['startZ'] - extraDepthNeeded), (STARTX + smallArea['startX'] + smallArea['width'], smallArea['height'] + minRoomHeight, STARTZ + smallArea['startZ'] + smallArea['depth']), Block('air'))
+      left = STARTX + smallArea['startX'] - extraWidthNeeded
+      right = STARTX + smallArea['startX'] + smallArea['width']
+      top = STARTZ + smallArea['startZ'] - extraDepthNeeded
+      bottom = STARTZ + smallArea['startZ'] + smallArea['depth']
+
+      geo.placeCuboid(ED, (left, smallArea['height'], top), (right, smallArea['height'] + minRoomHeight * levels, bottom), Block('air'))
 
       #  place platform in case it is requird
-      geo.placeRect(ED, Rect((STARTX + smallArea['startX'] - extraWidthNeeded, STARTZ + smallArea['startZ'] - extraDepthNeeded), (minHouseWidth + (wallThickness), minHouseDepth + (wallThickness))), smallArea['height'] - 1, Block("barrel"))
+      geo.placeRect(ED, Rect((left, top), (minHouseWidth + (wallThickness), minHouseDepth + (wallThickness))), smallArea['height'] - 1, Block("barrel"))
       
-      geo.placeCuboid(ED, (STARTX + smallArea['startX'] - extraWidthNeeded, smallArea['height'], STARTZ + smallArea['startZ'] - extraDepthNeeded), (STARTX + smallArea['startX'] - extraWidthNeeded, smallArea['height'] - 60, STARTZ + smallArea['startZ'] - extraDepthNeeded), Block('barrel'))
-      geo.placeCuboid(ED, (STARTX + smallArea['startX'] - extraWidthNeeded, smallArea['height'], STARTZ + smallArea['startZ'] + smallArea['depth']), (STARTX + smallArea['startX'] - extraWidthNeeded, smallArea['height'] - 60, STARTZ + smallArea['startZ'] + smallArea['depth']), Block('barrel'))
+      print("extrawidthNeeded:", smallArea)
+      heightsAfterMakeRoom = WORLDSLICE.heightmaps["OCEAN_FLOOR"]
+      blockHeightAtCornerTopLeft = heightsAfterMakeRoom[left - STARTX][top - STARTZ]
+      blockHeightAtCornerBottomLeft = heightsAfterMakeRoom[left - STARTX][bottom - STARTZ]
+      blockHeightAtCornerTopRight = heightsAfterMakeRoom[right - STARTX][top - STARTZ]
+      blockHeightAtCornerBottomRight = heightsAfterMakeRoom[right - STARTX][bottom - STARTZ]
 
-      geo.placeCuboid(ED, (STARTX + smallArea['startX'] + smallArea['width'], smallArea['height'], STARTZ + smallArea['startZ'] - extraDepthNeeded), (STARTX + smallArea['startX'] + smallArea['width'], smallArea['height'] - 60, STARTZ + smallArea['startZ'] - extraDepthNeeded), Block('barrel'))
-      geo.placeCuboid(ED, (STARTX + smallArea['startX'] + smallArea['width'], smallArea['height'], STARTZ + smallArea['startZ'] + smallArea['depth']), (STARTX + smallArea['startX'] + smallArea['width'], smallArea['height'] - 60, STARTZ + smallArea['startZ'] + smallArea['depth']), Block('barrel'))
+      print("height: ", blockHeightAtCornerTopLeft)
+      print("height: ", blockHeightAtCornerBottomLeft)
+      print("height: ", blockHeightAtCornerTopRight)
+      print("height: ", blockHeightAtCornerBottomRight)
+
+      geo.placeCuboid(ED, (left, smallArea['height'], top), (left, blockHeightAtCornerTopLeft, top), Block('barrel'))
+      geo.placeCuboid(ED, (left, smallArea['height'], bottom), (left, blockHeightAtCornerBottomLeft, bottom), Block('barrel'))
+
+      geo.placeCuboid(ED, (right, smallArea['height'], top), (right, blockHeightAtCornerTopRight, top), Block('barrel'))
+      geo.placeCuboid(ED, (right, smallArea['height'], bottom), (right, blockHeightAtCornerBottomRight, bottom), Block('barrel'))
       
       # #  place platform in case it is requird
       # geo.placeCuboid(ED, (STARTX + smallArea['startX'] - extraWidthNeeded, STARTZ + smallArea['startZ'] - extraDepthNeeded), 1, 1), smallArea['height'] - 1, Block("sandstone"))
@@ -442,8 +465,8 @@ def makeHouse(posX, posY, posZ, width, depth, rotated=False):
       houseWidth = width
       roomHeight = minRoomHeight
       houseDepth = depth
-      levels = 2
       houseHeight = roomHeight * levels
+      houseWallMaterial = ['pink_wool', 'magenta_terracotta'][randint(-1,1)]
 
 
       # housePosition = (STARTX, STARTY, STARTZ)
@@ -452,7 +475,7 @@ def makeHouse(posX, posY, posZ, width, depth, rotated=False):
       for level in range(1,levels + 1):
 
             # place house
-            geo.placeCuboidHollow(ED, housePosition, (housePosition[0] + houseWidth, housePosition[1] + (roomHeight * level), housePosition[2] + houseDepth), Block("pink_wool"));
+            geo.placeCuboidHollow(ED, housePosition, (housePosition[0] + houseWidth, housePosition[1] + (roomHeight * level), housePosition[2] + houseDepth), Block(houseWallMaterial));
 
             # cut out wall
             if(rotated):
@@ -475,13 +498,9 @@ def makeHouse(posX, posY, posZ, width, depth, rotated=False):
             
             
       # place roof 
-      geo.placeRect(ED, Rect((housePosition[0] - (wallThickness),housePosition[2] - (wallThickness)),(houseWidth + (wallThickness + 2), houseDepth + (wallThickness + 2))), housePosition[1] + houseHeight + 1, Block("sandstone"))
-      geo.placeRect(ED, Rect((housePosition[0] - (wallThickness),housePosition[2]),(houseWidth + (wallThickness + 2), houseDepth + (wallThickness))), housePosition[1] + houseHeight + 2, Block("sandstone"))
-      geo.placeRect(ED, Rect((housePosition[0] - (wallThickness),housePosition[2] + (wallThickness)),(houseWidth + (wallThickness + 2), houseDepth + (wallThickness - 2))), housePosition[1] + houseHeight + 3, Block("sandstone"))
-      geo.placeRect(ED, Rect((housePosition[0] - (wallThickness),housePosition[2] + (wallThickness + 1)),(houseWidth + (wallThickness + 2), houseDepth + (wallThickness - 4))), housePosition[1] + houseHeight + 4, Block("sandstone"))
-
-
-      
+      geo.placeRect(ED, Rect((housePosition[0] - (wallThickness),housePosition[2] - (wallThickness)),(houseWidth + (wallThickness + 2), houseDepth + (wallThickness + 2))), housePosition[1] + houseHeight + 1, Block("smooth_quartz"))
+      geo.placeRectOutline(ED, Rect((housePosition[0] - (wallThickness),housePosition[2] - (wallThickness)),(houseWidth + (wallThickness + 2), houseDepth + (wallThickness + 2))), housePosition[1] + houseHeight, Block("smooth_quartz"))
+      geo.placeRect(ED, Rect((housePosition[0] - (wallThickness) + 1,housePosition[2]),(houseWidth + (wallThickness), houseDepth + (wallThickness))), housePosition[1] + houseHeight + 2, Block("smooth_quartz_slab"))
 
       
       # # make room divider
@@ -527,10 +546,25 @@ def makeHouse(posX, posY, posZ, width, depth, rotated=False):
 
 
       # make balcony
+
       balconyDepth = randint(3, houseDepth - 1)
       geo.placeCuboid(ED, (housePosition[0], housePosition[1] + roomHeight, housePosition[2] + houseDepth-balconyDepth), (housePosition[0], housePosition[1] + houseHeight, housePosition[2] + houseDepth), Block("air"));
       geo.placeRect(ED, Rect((housePosition[0],housePosition[2]+houseDepth-balconyDepth),(balconyDepth, balconyDepth + 1)), housePosition[1] + roomHeight, Block("pink_stained_glass"))
 
+      # plantCornerLeft =  True if randint(0,1) else False
+      plantCornerLeft =  False 
+      plantsAmount = randint(1,2)
+      print("plants amount: ", plantsAmount)
+      if(plantCornerLeft):
+            for x in range(plantsAmount):
+                  print('random:', randint(0,3))
+                  geo.placeCuboid(ED, (housePosition[0], housePosition[1] + roomHeight + floorThickness, housePosition[2] + houseDepth-balconyDepth + x), (housePosition[0], housePosition[1] + roomHeight + floorThickness, housePosition[2] + houseDepth-balconyDepth + x), Block(["potted_oak_sapling", "potted_pink_tulip", "potted_blue_orchid"][randint(0,2)]));
+                  
+      else:
+            for x in range(plantsAmount):
+                  print('random:', randint(0,3))
+                  geo.placeCuboid(ED, (housePosition[0] + balconyDepth - 1 - x, housePosition[1] + roomHeight + floorThickness, housePosition[2] + houseDepth), (housePosition[0] + balconyDepth - 1 - x, housePosition[1] + roomHeight + floorThickness, housePosition[2] + houseDepth), Block(["potted_oak_sapling", "potted_pink_tulip", "potted_blue_orchid"][randint(0,2)]));
+                  
 
 
       # place stairs
@@ -624,9 +658,61 @@ def makeHouse(posX, posY, posZ, width, depth, rotated=False):
       geo.placeCuboid(ED, (housePosition[0] + round(houseWidth/2) - 2, housePosition[1] + floorThickness, housePosition[2] + houseDepth - 1), (housePosition[0] + round(houseWidth/2) - 2, housePosition[1] + floorThickness, housePosition[2] + houseDepth - 1), Block('crimson_stairs', {"facing": "west"}))
       geo.placeCuboid(ED, (housePosition[0] + round(houseWidth/2) + 2, housePosition[1] + floorThickness, housePosition[2] + houseDepth - 1), (housePosition[0] + round(houseWidth/2) + 2, housePosition[1] + floorThickness, housePosition[2] + houseDepth - 1), Block('crimson_stairs', {"facing": "east"}))
                   
-                  
-      # make bed + nightstand
-      geo.placeCuboid(ED, (housePosition[0] + houseWidth - (wallThickness * 2), housePosition[1] + floorThickness + roomHeight, housePosition[2] + houseDepth - 2), (housePosition[0] + houseWidth - (wallThickness * 2), housePosition[1] + floorThickness + roomHeight, housePosition[2] + houseDepth - 2), Block('pink_bed', {"facing": "east"}))
+
+      # place some item frames on the walls
+      # (If the walls don't exist, on that spot, the frames will just disappear so that's not a suuuper big issue.)
+      # geo.placeCuboid(ED, (housePosition[0], housePosition[1] + floorThickness + 1, housePosition[2]), (housePosition[0], housePosition[1] + floorThickness + 1, housePosition[2]), Block('pink_concrete', {"facing_direction": "west"}))
+      # geo.placeCuboid(ED, (housePosition[0]-1, housePosition[1], housePosition[2]), (housePosition[0]-1, housePosition[1], housePosition[2]), Block('pink_concrete', {"facing_direction": 5}))
+
+
+
+      bedName = ['pink_bed', 'magenta_bed'][randint(-1,1)]
+      
+      # make rug
+      geo.placeRect(ED, Rect((housePosition[0] + houseWidth - wallThickness - 3, housePosition[2] + houseDepth - 4), (4,4)),housePosition[1] + roomHeight, Block("smooth_quartz"))
+
+      # make bed
+      geo.placeCuboid(ED, (housePosition[0] + houseWidth - (wallThickness * 2), housePosition[1] + floorThickness + roomHeight, housePosition[2] + houseDepth - 2), (housePosition[0] + houseWidth - (wallThickness * 2), housePosition[1] + floorThickness + roomHeight, housePosition[2] + houseDepth - 2), Block(bedName, {"facing": "east"}))
+      geo.placeCuboid(ED, (housePosition[0] + houseWidth - (wallThickness * 2), housePosition[1] + floorThickness + roomHeight, housePosition[2] + houseDepth - 3), (housePosition[0] + houseWidth - (wallThickness * 2), housePosition[1] + floorThickness + roomHeight, housePosition[2] + houseDepth - 3), Block(bedName, {"facing": "east"}))
+      
+      # make nightstand or candles
+      nightstandActive = True if randint(0,1) else False
+      if(nightstandActive):
+            geo.placeCuboid(ED, (housePosition[0] + houseWidth - wallThickness, housePosition[1] + floorThickness + roomHeight, housePosition[2] + houseDepth - wallThickness), (housePosition[0] + houseWidth - wallThickness, housePosition[1] + floorThickness + roomHeight, housePosition[2] + houseDepth - wallThickness), Block('enchanting_table'))
+      else: 
+            geo.placeCuboid(ED, (housePosition[0] + houseWidth - wallThickness, housePosition[1] + floorThickness + roomHeight, housePosition[2] + houseDepth - wallThickness), (housePosition[0] + houseWidth - wallThickness, housePosition[1] + floorThickness + roomHeight, housePosition[2] + houseDepth - wallThickness), Block('candle', {"candles": 3, "lit": True}))
+      
+
+      
+      # place lights
+      # where there is no balcony, place the lights
+      
+      lightsStartX = housePosition[0] + balconyDepth + 1
+      lightsEndX = housePosition[0] + houseWidth
+      print("aaaa")
+      print(lightsStartX)
+      print(lightsEndX)
+      lightsZ = housePosition[2] + houseDepth - wallThickness
+      lightsY = housePosition[1] + roomHeight - floorThickness
+      print(lightsZ)
+      print(lightsY)
+      print(lightsEndX - lightsStartX)
+
+      lanternActive = True if randint(0,1) else False
+      if(cutWallOnBothSides):
+            lightsEndX = lightsEndX + 1
+      for x in range(0, lightsEndX - lightsStartX, 2):
+            print(x)
+            if(lanternActive):
+                  geo.placeCuboid(ED, (lightsStartX + x, lightsY, lightsZ), (lightsStartX + x, lightsY, lightsZ), Block('lantern', {"hanging": True}))
+            else:
+                  geo.placeCuboid(ED, (lightsStartX + x, lightsY, lightsZ), (lightsStartX + x, lightsY, lightsZ), Block('beacon'))
+
+
+      # make bed + nightstand 
+      # geo.placeCuboid(ED, (housePosition[0] + houseWidth - (wallThickness * 2), housePosition[1] + floorThickness + roomHeight, housePosition[2] + houseDepth - 2), (housePosition[0] + houseWidth - (wallThickness * 2), housePosition[1] + floorThickness + roomHeight, housePosition[2] + houseDepth - 2), Block('pink_bed', {"facing": "east"}))
+      # geo.placeCuboid(ED, (housePosition[0] + houseWidth - (wallThickness * 2), housePosition[1] + floorThickness + roomHeight, housePosition[2] + houseDepth - 3), (housePosition[0] + houseWidth - (wallThickness * 2), housePosition[1] + floorThickness + roomHeight, housePosition[2] + houseDepth - 3), Block('pink_bed', {"facing": "east"}))
+      # geo.placeCuboid(ED, (housePosition[0] + houseWidth - wallThickness, housePosition[1] + floorThickness + roomHeight, housePosition[2] + houseDepth - wallThickness), (housePosition[0] + houseWidth - wallThickness, housePosition[1] + floorThickness + roomHeight, housePosition[2] + houseDepth - wallThickness), Block('enchanting_table'))
       
       # make rug
                   
