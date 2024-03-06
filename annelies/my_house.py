@@ -515,10 +515,10 @@ def makeHouse(posX, posY, posZ, width, depth, rotated=False):
       geo.placeRectOutline(ED, Rect((housePosition[0] - (wallThickness),housePosition[2] - (wallThickness)),(houseWidth + (wallThickness + 2), houseDepth + (wallThickness + 2))), housePosition[1] + houseHeight, Block("smooth_quartz"))
       geo.placeRect(ED, Rect((housePosition[0] - (wallThickness) + 1,housePosition[2]),(houseWidth + (wallThickness), houseDepth + (wallThickness))), housePosition[1] + houseHeight + 2, Block("smooth_quartz_slab"))
 
-      geo.placeRect(ED, Rect((housePosition[0] - (wallThickness),housePosition[2] + (wallThickness)),(houseWidth + (wallThickness + 2), houseDepth + (wallThickness - 2))), housePosition[1] + houseHeight + 3, Block("sandstone"))
-      geo.placeRect(ED, Rect((housePosition[0] - (wallThickness),housePosition[2] + (wallThickness + 1)),(houseWidth + (wallThickness + 2), houseDepth + (wallThickness - 4))), housePosition[1] + houseHeight + 4, Block("sandstone"))
-      geo.placeRect(ED, Rect((housePosition[0] - (wallThickness),housePosition[2] + (wallThickness + 2)),(houseWidth + (wallThickness + 2), houseDepth + (wallThickness - 6))), housePosition[1] + houseHeight + 5, Block("sandstone"))
-      geo.placeRect(ED, Rect((housePosition[0] - (wallThickness),housePosition[2] + (wallThickness + 3)),(houseWidth + (wallThickness + 2), houseDepth + (wallThickness - 8))), housePosition[1] + houseHeight + 6, Block("sandstone"))
+      # geo.placeRect(ED, Rect((housePosition[0] - (wallThickness),housePosition[2] + (wallThickness)),(houseWidth + (wallThickness + 2), houseDepth + (wallThickness - 2))), housePosition[1] + houseHeight + 3, Block("sandstone"))
+      # geo.placeRect(ED, Rect((housePosition[0] - (wallThickness),housePosition[2] + (wallThickness + 1)),(houseWidth + (wallThickness + 2), houseDepth + (wallThickness - 4))), housePosition[1] + houseHeight + 4, Block("sandstone"))
+      # geo.placeRect(ED, Rect((housePosition[0] - (wallThickness),housePosition[2] + (wallThickness + 2)),(houseWidth + (wallThickness + 2), houseDepth + (wallThickness - 6))), housePosition[1] + houseHeight + 5, Block("sandstone"))
+      # geo.placeRect(ED, Rect((housePosition[0] - (wallThickness),housePosition[2] + (wallThickness + 3)),(houseWidth + (wallThickness + 2), houseDepth + (wallThickness - 8))), housePosition[1] + houseHeight + 6, Block("sandstone"))
 
       # # make room divider
       # level = 0
