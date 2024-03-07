@@ -929,23 +929,6 @@ def calculateArea():
       sameValueGroupsPerColumn = []
       sameValueGroupsPerColumnCurrentIndex = 0
 
-      # def findAreaInRow(g, previousRow, gi, sameValueGroupsPerColumnCurrentIndex):
-      #       print("aaa", sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex])
-      #       if(gi < len(previousRow)):
-      #             if(g['height'] == previousRow[gi]['height'] and len(intersection(sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], g['coordinates'])) >= minHouseDepth):
-      #                   return intersection(sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], g['coordinates'])
-      #                   # if(index == len(sameValueGroupsPerRow) - 1):
-      #                   #       sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex] = {"height": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['height'], "coordinates": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], "startRow": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['startRow'], "endRow": index - 1}
-      #             else:
-      #                   findAreaInRow(g, previousRow, gi+1, sameValueGroupsPerColumnCurrentIndex)
-      #       else:
-      #             print("bbb")
-      #             return []
-      #       # else:
-      #       #       sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex] = {"height": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['height'], "coordinates": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], "startRow": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['startRow'], "endRow": index - 1}
-      #       #       sameValueGroupsPerColumnCurrentIndex += 1
-      #       #       sameValueGroupsPerColumn.append({'height': g['height'], 'startRow': index, 'coordinates':  g['coordinates'], "endRow": 0})
-
       for index, row in enumerate(sameValueGroupsPerRow):
             previousRow = sameValueGroupsPerRow[index - 1]
             previousRow.sort(key=get_size, reverse = True)
@@ -953,90 +936,49 @@ def calculateArea():
             row.sort(key=get_size, reverse = True)
             # We only compare the first group of each row.
             # The first group is always the biggest, since we sorted it. 
-            # if(row[0]['size'] < minHouseDepth):  
-            #       print('return')
-            #       print('row:', row[0])
-            #       break
-            # else:
             if(index > 0):
                   if(row[0]['height'] == previousRow[0]['height'] and len(intersection(sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], row[0]['coordinates'])) >= minHouseDepth):
                         sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'] = intersection(sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], row[0]['coordinates'])
                         if(index == len(sameValueGroupsPerRow) - 1):
-                              sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex] = {"height": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['height'], "coordinates": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], "startRow": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['startRow'], "endRow": index - 1}
+                              sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex] = {
+                                    "height": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['height'], 
+                                    "coordinates": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], 
+                                    "startRow": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['startRow'], 
+                                    "endRow": index - 1
+                              }
 
                   else:
-                        sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex] = {"height": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['height'], "coordinates": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], "startRow": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['startRow'], "endRow": index - 1}
+                        sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex] = {
+                              "height": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['height'], 
+                              "coordinates": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], 
+                              "startRow": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['startRow'], 
+                              "endRow": index - 1
+                        }
                         sameValueGroupsPerColumnCurrentIndex += 1
                         sameValueGroupsPerColumn.append({'height': row[0]['height'], 'startRow': index, 'coordinates':  row[0]['coordinates'], "endRow": 0})
             else:
                   sameValueGroupsPerColumn.append({'height': row[0]['height'], 'startRow': index, 'coordinates': row[0]['coordinates'], "endRow": 0})
 
-      
-            # for gi, g in enumerate(row):
-            #       print("g: ", g)
-            #       if(g['size'] < minHouseDepth):
-            #             print('return')
-            #             break
-            #       else:
-            #             if(index > 0):
-            #                   sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'] = findAreaInRow(g, previousRow, gi, sameValueGroupsPerColumnCurrentIndex)
-            #                   # if(g['height'] == previousRow[gi]['height'] and len(intersection(sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], row[0]['coordinates'])) >= minHouseDepth):
-            #                   #       sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'] = intersection(sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], row[0]['coordinates'])
-            #                   #       if(index == len(sameValueGroupsPerRow) - 1):
-            #                   #             sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex] = {"height": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['height'], "coordinates": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], "startRow": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['startRow'], "endRow": index - 1}
-
-            #                   # else:
-            #                   #       sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex] = {"height": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['height'], "coordinates": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], "startRow": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['startRow'], "endRow": index - 1}
-            #                   #       sameValueGroupsPerColumnCurrentIndex += 1
-            #                   #       sameValueGroupsPerColumn.append({'height': g['height'], 'startRow': index, 'coordinates':  g['coordinates'], "endRow": 0})
-            #             else:
-            #                   sameValueGroupsPerColumn.append({'height': g['height'], 'startRow': index, 'coordinates': g['coordinates'], "endRow": 0})
-
             
 
+      
       
       # map the sameValueGroupsPerColumn array
       bigAreas = map(mapSameValueGroupsPerColumn, sameValueGroupsPerColumn)
       bigAreas = list(bigAreas)
-      # print("bigareas before filter", list(bigAreas))
-      # bigAreas = array(bigAreas)
-      # smallerAreas = bigAreas.copy()
       smallerAreas = bigAreas[:]
 
-      # smallerAreas = smallerAreas.tolist()
-      # bigAreas = bigAreas.tolist()
-      print("1 bigareas",  bigAreas)
-
-
-      # filter out the width smaller than minallowedwidthsize
-      # smallerAreas = array(list(bigAreas)).copy()
-      # smallerAreas = list(smallerAreas)
-      # smallerAreas.clear()
-      # print("smallerareas", list(smallerAreas))
-      # filter(width_is_bigger_than_minimum, smallerAreas)
-      # smallerAreas = list(smallerAreas)
       # sort, so the first item is the area with the biggest width
       smallerAreas.sort(key=get_width, reverse=True)
 
 
-      # bigAreas = list(bigAreas)
+      # filter out the width smaller than minimum allowed size
       bigAreas = filter(width_and_depth_is_bigger_than_minimum, bigAreas)
       bigAreas = list(bigAreas)
 
-
-      print("Bigareas", bigAreas)
-      # smallerAreas = list(smallerAreas)
-
-      print("smallerAreas", smallerAreas)
-      # smallerAreas = list(smallerAreas)
-      # print("smallerAreas", smallerAreas)
-
       bigAreas.sort(key=get_surface_size, reverse=True)
 
-
-      print("bigAreas (", len(bigAreas), "):", bigAreas)
       if(len(bigAreas) == 0):
-            # THERE ARE NO AREAS BIG ENOUGH! :(
             print("THERE ARE NO AREAS BIG ENOUGH! :(")
 
             # Engage emergency functions.
