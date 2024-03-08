@@ -241,6 +241,7 @@ ROADHEIGHT = 0
 # /setbuildarea ~0 0 ~0 ~64 200 ~64
 # /setbuildarea 0 -60 0 100 40 100
 # /setbuildarea 0 -60 0 10 -50 10
+# /setbuildarea ~0 -60 ~0 ~100 40 ~100
 
 
 #     In this function we're building a simple wall around the build area
@@ -362,8 +363,8 @@ waterOrLavaAreas = []
 #             result = map(addSize, row)
 #             sameValueGroupsPerRow[index] = list(result)
 
-#       sameValueGroupsPerColumn = []
-#       sameValueGroupsPerColumnCurrentIndex = 0
+#       sameValueAreasInMatrix = []
+#       sameValueAreasInMatrixCurrentIndex = 0
 
 #       for index, row in enumerate(sameValueGroupsPerRow):
 #             previousRow = sameValueGroupsPerRow[index - 1]
@@ -375,23 +376,23 @@ waterOrLavaAreas = []
 #                   break
 #             else:
 #                   if(index > 0):
-#                         if(row[0]['height'] == previousRow[0]['height'] and len(intersection(sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], row[0]['coordinates'])) > 0):
-#                               sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'] = intersection(sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], row[0]['coordinates'])
+#                         if(row[0]['height'] == previousRow[0]['height'] and len(intersection(sameValueAreasInMatrix[sameValueAreasInMatrixCurrentIndex]['coordinates'], row[0]['coordinates'])) > 0):
+#                               sameValueAreasInMatrix[sameValueAreasInMatrixCurrentIndex]['coordinates'] = intersection(sameValueAreasInMatrix[sameValueAreasInMatrixCurrentIndex]['coordinates'], row[0]['coordinates'])
 #                               if(index == len(sameValueGroupsPerRow) - 1):
-#                                     sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex] = {"height": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['height'], "coordinates": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], "startRow": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['startRow'], "endRow": index - 1}
+#                                     sameValueAreasInMatrix[sameValueAreasInMatrixCurrentIndex] = {"height": sameValueAreasInMatrix[sameValueAreasInMatrixCurrentIndex]['height'], "coordinates": sameValueAreasInMatrix[sameValueAreasInMatrixCurrentIndex]['coordinates'], "startRow": sameValueAreasInMatrix[sameValueAreasInMatrixCurrentIndex]['startRow'], "endRow": index - 1}
 
 #                         else:
-#                               sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex] = {"height": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['height'], "coordinates": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], "startRow": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['startRow'], "endRow": index - 1}
-#                               sameValueGroupsPerColumnCurrentIndex += 1
-#                               sameValueGroupsPerColumn.append({'height': row[0]['height'], 'startRow': index, 'coordinates':  row[0]['coordinates'], "endRow": 0})
+#                               sameValueAreasInMatrix[sameValueAreasInMatrixCurrentIndex] = {"height": sameValueAreasInMatrix[sameValueAreasInMatrixCurrentIndex]['height'], "coordinates": sameValueAreasInMatrix[sameValueAreasInMatrixCurrentIndex]['coordinates'], "startRow": sameValueAreasInMatrix[sameValueAreasInMatrixCurrentIndex]['startRow'], "endRow": index - 1}
+#                               sameValueAreasInMatrixCurrentIndex += 1
+#                               sameValueAreasInMatrix.append({'height': row[0]['height'], 'startRow': index, 'coordinates':  row[0]['coordinates'], "endRow": 0})
 #                   else:
-#                         sameValueGroupsPerColumn.append({'height': row[0]['height'], 'startRow': index, 'coordinates': row[0]['coordinates'], "endRow": 0})
+#                         sameValueAreasInMatrix.append({'height': row[0]['height'], 'startRow': index, 'coordinates': row[0]['coordinates'], "endRow": 0})
 
       
 
       
-#       # map the sameValueGroupsPerColumn array
-#       bigAreas = map(mapSameValueGroupsPerColumn, sameValueGroupsPerColumn)
+#       # map the sameValueAreasInMatrix array
+#       bigAreas = map(mapsameValueAreasInMatrix, sameValueAreasInMatrix)
 #       # filter out the width smaller than minallowedwidthsize
 #       bigAreas = filter(width_is_bigger_than_minimum, bigAreas)
 
@@ -853,7 +854,7 @@ def addSize(group):
 def intersection(list_a, list_b):
       return [ e for e in list_a if e in list_b ]
 
-def mapSameValueGroupsPerColumn(g):
+def mapSameValueAreasInMatrix(g):
       startX =  g['startRow']
       endX = g['endRow']
       if(len(g['coordinates']) > 0):
@@ -893,11 +894,25 @@ def calculateArea():
 
       for index in enumerate(heights):
             sameValueGroupsPerRow.append([])
+      # print("0,0:", heights[0][0])
+      # print("8,8:", heights[8][8])
+      # print("0,8:", heights[0][8])
+      # # print("99,99:", heights[99][99])
+      # print("100,100:", heights[100][100])
+      # # print("100,0:", heights[100][0])
+      # # print("99,0:", heights[99][0])
+      # # print("-2,-2:", heights[-2][-2])
+      # # print("-1,-1:", heights[-1][-1])
+
+      # geo.placeCuboid(ED, (STARTX, STARTY, STARTZ), (LASTX, -54, STARTZ), Block('red_concrete'))
 
       for ri, row in enumerate(heights):
+            print("ri:", ri)
+
             sameValueGroupCurrentIndex = 0
 
             for ci, col in enumerate(row):
+                  print("ci:", ci)
                   if(ci > 0):
                         # check if block it not water or lava.
                         block = WORLDSLICE.getBlock((ri, col-1, ci))
@@ -906,7 +921,6 @@ def calculateArea():
                         else:
                               sameValueGroupCurrentIndex += 1
                               sameValueGroupsPerRow[ri].append({"height":col, "coordinates": []})
-                              sameValueGroupsPerRow[ri][sameValueGroupCurrentIndex]['type'] =  block.id
                               if(block.id in ["minecraft:water", "minecraft:lava"]):
                                     waterOrLavaAreas[ri][ci-1] = col
                               else:
@@ -914,8 +928,10 @@ def calculateArea():
                   else:
                         sameValueGroupsPerRow[ri].append({"height":col, "coordinates": []})
                         sameValueGroupsPerRow[ri][sameValueGroupCurrentIndex]['coordinates'].append(ci)
-
-
+                  
+                  # print('sameValueGroupsPerRow[ri]', sameValueGroupsPerRow[ri])
+                  # print('')
+            print("ri:", ri)
       # Filter out the groups that have no coordinates.
       for index, row in enumerate(sameValueGroupsPerRow):
             sameValueGroupsPerRow[index] = list(filter(has_coordinates, row))
@@ -926,8 +942,8 @@ def calculateArea():
             result = map(addSize, row)
             sameValueGroupsPerRow[index] = list(result)
 
-      sameValueGroupsPerColumn = []
-      sameValueGroupsPerColumnCurrentIndex = 0
+      sameValueAreasInMatrix = []
+      sameValueAreasInMatrixCurrentIndex = 0
 
       for index, row in enumerate(sameValueGroupsPerRow):
             previousRow = sameValueGroupsPerRow[index - 1]
@@ -937,34 +953,33 @@ def calculateArea():
             # We only compare the first group of each row.
             # The first group is always the biggest, since we sorted it. 
             if(index > 0):
-                  if(row[0]['height'] == previousRow[0]['height'] and len(intersection(sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], row[0]['coordinates'])) >= minHouseDepth):
-                        sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'] = intersection(sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], row[0]['coordinates'])
-                        if(index == len(sameValueGroupsPerRow) - 1):
-                              sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex] = {
-                                    "height": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['height'], 
-                                    "coordinates": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], 
-                                    "startRow": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['startRow'], 
+                  if(row[0]['height'] == previousRow[0]['height'] and len(intersection(sameValueAreasInMatrix[sameValueAreasInMatrixCurrentIndex]['coordinates'], row[0]['coordinates'])) >= minHouseDepth):
+                        sameValueAreasInMatrix[sameValueAreasInMatrixCurrentIndex]['coordinates'] = intersection(sameValueAreasInMatrix[sameValueAreasInMatrixCurrentIndex]['coordinates'], row[0]['coordinates'])
+                        if(index == len(sameValueGroupsPerRow) - 1): 
+                              sameValueAreasInMatrix[sameValueAreasInMatrixCurrentIndex] = {
+                                    "height": sameValueAreasInMatrix[sameValueAreasInMatrixCurrentIndex]['height'], 
+                                    "coordinates": sameValueAreasInMatrix[sameValueAreasInMatrixCurrentIndex]['coordinates'], 
+                                    "startRow": sameValueAreasInMatrix[sameValueAreasInMatrixCurrentIndex]['startRow'], 
                                     "endRow": index - 1
                               }
 
                   else:
-                        sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex] = {
-                              "height": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['height'], 
-                              "coordinates": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['coordinates'], 
-                              "startRow": sameValueGroupsPerColumn[sameValueGroupsPerColumnCurrentIndex]['startRow'], 
+                        sameValueAreasInMatrix[sameValueAreasInMatrixCurrentIndex] = {
+                              "height": sameValueAreasInMatrix[sameValueAreasInMatrixCurrentIndex]['height'], 
+                              "coordinates": sameValueAreasInMatrix[sameValueAreasInMatrixCurrentIndex]['coordinates'], 
+                              "startRow": sameValueAreasInMatrix[sameValueAreasInMatrixCurrentIndex]['startRow'], 
                               "endRow": index - 1
                         }
-                        sameValueGroupsPerColumnCurrentIndex += 1
-                        sameValueGroupsPerColumn.append({'height': row[0]['height'], 'startRow': index, 'coordinates':  row[0]['coordinates'], "endRow": 0})
+                        sameValueAreasInMatrixCurrentIndex += 1
+                        sameValueAreasInMatrix.append({'height': row[0]['height'], 'startRow': index, 'coordinates':  row[0]['coordinates'], "endRow": 0})
             else:
-                  sameValueGroupsPerColumn.append({'height': row[0]['height'], 'startRow': index, 'coordinates': row[0]['coordinates'], "endRow": 0})
+                  sameValueAreasInMatrix.append({'height': row[0]['height'], 'startRow': index, 'coordinates': row[0]['coordinates'], "endRow": 0})
 
             
-
       
       
-      # map the sameValueGroupsPerColumn array
-      bigAreas = map(mapSameValueGroupsPerColumn, sameValueGroupsPerColumn)
+      # map the sameValueAreasInMatrix array
+      bigAreas = map(mapSameValueAreasInMatrix, sameValueAreasInMatrix)
       bigAreas = list(bigAreas)
       smallerAreas = bigAreas[:]
 
@@ -993,7 +1008,6 @@ def calculateArea():
 
             # 2.  Try the same functions again, but this time don't exclude the water.
             #     If the biggest area appears to be water/lava, build a raft to place a house on..
-            
             # buildRaft()
 
             # 3.  If this is not the case, and the biggest area is not just water,
@@ -1035,10 +1049,10 @@ def calculateArea():
 
       # plt.imshow(bigAreas)
       # plt.show()
-      # for s in enumerate(sameValueGroupsPerColumn):
+      # for s in enumerate(sameValueAreasInMatrix):
             # print(s)
 
-      # print(sameValueGroupsPerColumn)
+      # print(sameValueAreasInMatrix)
 
 # if a situation occurs where there are at least 10 (minHouseWidth) samevaluegroup coordinates starting with 3 ([3, 3] [3,4] [3,5]..) and  7 rows are the same but with different first coordinate ([4,3] [4,4] [4,5] and [5,3] [5,4] [5,5] and [6,3] [6,4] [6,5] etc. then build a house there. otherwise chop trees around biggest spot.)
 # for x in range(0, 10 + 1):
