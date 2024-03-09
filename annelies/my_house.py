@@ -611,13 +611,13 @@ def makeHouse(posX, posY, posZ, width, depth, rotated=False):
              # room for bathroom left from the stairs
             roomOnTheLeft = stairsStartX - housePosition[0] - wallThickness
             if(roomOnTheLeft >= 6):
-                  makeBathRoom(randint(housePosition[0], (housePosition[0] + roomOnTheLeft) - 5), housePosition[1] + roomHeight, housePosition[2] + wallThickness, True)
+                  makeBathRoom(randint(housePosition[0] + wallThickness, (housePosition[0] + wallThickness) + roomOnTheLeft - 6), housePosition[1] + roomHeight, housePosition[2] + wallThickness, True)
             elif(roomOnTheLeft >= 3):
                   makeSmallBathRoom(housePosition[0] + wallThickness, housePosition[1] + roomHeight, housePosition[2] + wallThickness)
             else:
                   roomOnTheRight = (housePosition[0] + houseWidth) - (stairsStartX + stairsWidth) - wallThickness
                   if(roomOnTheRight >= 6):
-                        makeBathRoom(randint((stairsStartX + stairsWidth + 1), (stairsStartX + stairsWidth + 1) + roomOnTheRight - 6), housePosition[1] + roomHeight, housePosition[2] + wallThickness, False)
+                        makeBathRoom(randint((stairsStartX + stairsWidth + 2), (stairsStartX + stairsWidth + 2) + roomOnTheRight - 6), housePosition[1] + roomHeight, housePosition[2] + wallThickness, False)
                   elif(roomOnTheRight >= 3):
                         makeSmallBathRoom(randint(stairsStartX + stairsWidth + 1, stairsStartX + stairsWidth + 1 + roomOnTheRight - 3), housePosition[1] + roomHeight, housePosition[2] + wallThickness)
        
@@ -647,7 +647,8 @@ def makeHouse(posX, posY, posZ, width, depth, rotated=False):
             else:
                   roomOnTheLeft = (stairsStartX - stairsWidth) - housePosition[0] - wallThickness
                   if(roomOnTheLeft >= wallThickness + 6):
-                        makeBathRoom(randint(housePosition[0] + wallThickness, (housePosition[0] + wallThickness + roomOnTheLeft) - 6), housePosition[1] + roomHeight, housePosition[2] + wallThickness, True)
+                        # "- 6" because the width of the big bathroom is 6, and "- 1" because you need 1 block of space between the bathroom wall and the stairs to walk.
+                        makeBathRoom(randint(housePosition[0] + wallThickness, (housePosition[0] + wallThickness + roomOnTheLeft) - 6 - 1), housePosition[1] + roomHeight, housePosition[2] + wallThickness, True) 
                   elif(roomOnTheLeft >= wallThickness + 3):
                         makeSmallBathRoom(housePosition[0] + wallThickness, housePosition[1] + roomHeight, housePosition[2] + wallThickness)
 
