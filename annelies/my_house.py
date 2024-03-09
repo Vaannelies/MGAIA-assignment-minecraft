@@ -323,98 +323,6 @@ waterOrLavaAreas = []
 #       print('waterorLavaareas', waterOrLavaAreas)
 #       plt.imshow(waterOrLavaAreas)
 #       plt.show()
-
-#       for index in enumerate(heights):
-#             waterOrLavaAreas.append(list(np.full(LASTZ-STARTZ,  -1)))
-
-#       for index in enumerate(heights):
-#             sameValueGroupsPerRow.append([])
-
-#       for ri, row in enumerate(heights):
-#             sameValueGroupCurrentIndex = 0
-
-#             for ci, col in enumerate(row):
-#                   if(ci > 0):
-#                         # check if block it not water or lava.
-#                         block = WORLDSLICE.getBlock((ri, col-1, ci))
-#                         print("block", block)
-#                         if(col == row[ci - 1] and block.id not in ["minecraft:water", "minecraft:lava"]):
-#                               sameValueGroupsPerRow[ri][sameValueGroupCurrentIndex]['coordinates'].append(ci)
-#                         else:
-#                               sameValueGroupCurrentIndex += 1
-#                               sameValueGroupsPerRow[ri].append({"height":col, "coordinates": []})
-#                               sameValueGroupsPerRow[ri][sameValueGroupCurrentIndex]['type'] =  block.id
-#                               if(block.id in ["minecraft:water", "minecraft:lava"]):
-#                                     waterOrLavaAreas[ri][ci-1] = col
-#                               else:
-#                                     sameValueGroupsPerRow[ri][sameValueGroupCurrentIndex]['coordinates'].append(ci)
-#                   else:
-#                         sameValueGroupsPerRow[ri].append({"height":col, "coordinates": []})
-#                         sameValueGroupsPerRow[ri][sameValueGroupCurrentIndex]['coordinates'].append(ci)
-
-
-#       # Filter out the groups that have no coordinates.
-#       for index, row in enumerate(sameValueGroupsPerRow):
-#             sameValueGroupsPerRow[index] = list(filter(has_coordinates, row))
-
-
-#       for index, row in enumerate(sameValueGroupsPerRow):
-#             row.sort(key=get_size, reverse = True)
-#             result = map(addSize, row)
-#             sameValueGroupsPerRow[index] = list(result)
-
-#       sameValueAreasInMatrix = []
-#       sameValueAreasInMatrixCurrentIndex = 0
-
-#       for index, row in enumerate(sameValueGroupsPerRow):
-#             previousRow = sameValueGroupsPerRow[index - 1]
-#             previousRow.sort(key=get_size, reverse = True)
-
-#             row.sort(key=get_size, reverse = True)
-#             if(row[0]['size'] < minHouseDepth):
-#                   print('return')
-#                   break
-#             else:
-#                   if(index > 0):
-#                         if(row[0]['height'] == previousRow[0]['height'] and len(intersection(sameValueAreasInMatrix[sameValueAreasInMatrixCurrentIndex]['coordinates'], row[0]['coordinates'])) > 0):
-#                               sameValueAreasInMatrix[sameValueAreasInMatrixCurrentIndex]['coordinates'] = intersection(sameValueAreasInMatrix[sameValueAreasInMatrixCurrentIndex]['coordinates'], row[0]['coordinates'])
-#                               if(index == len(sameValueGroupsPerRow) - 1):
-#                                     sameValueAreasInMatrix[sameValueAreasInMatrixCurrentIndex] = {"height": sameValueAreasInMatrix[sameValueAreasInMatrixCurrentIndex]['height'], "coordinates": sameValueAreasInMatrix[sameValueAreasInMatrixCurrentIndex]['coordinates'], "startRow": sameValueAreasInMatrix[sameValueAreasInMatrixCurrentIndex]['startRow'], "endRow": index - 1}
-
-#                         else:
-#                               sameValueAreasInMatrix[sameValueAreasInMatrixCurrentIndex] = {"height": sameValueAreasInMatrix[sameValueAreasInMatrixCurrentIndex]['height'], "coordinates": sameValueAreasInMatrix[sameValueAreasInMatrixCurrentIndex]['coordinates'], "startRow": sameValueAreasInMatrix[sameValueAreasInMatrixCurrentIndex]['startRow'], "endRow": index - 1}
-#                               sameValueAreasInMatrixCurrentIndex += 1
-#                               sameValueAreasInMatrix.append({'height': row[0]['height'], 'startRow': index, 'coordinates':  row[0]['coordinates'], "endRow": 0})
-#                   else:
-#                         sameValueAreasInMatrix.append({'height': row[0]['height'], 'startRow': index, 'coordinates': row[0]['coordinates'], "endRow": 0})
-
-      
-
-      
-#       # map the sameValueAreasInMatrix array
-#       bigAreas = map(mapsameValueAreasInMatrix, sameValueAreasInMatrix)
-#       # filter out the width smaller than minallowedwidthsize
-#       bigAreas = filter(width_is_bigger_than_minimum, bigAreas)
-
-#       bigAreas = list(bigAreas)
-#       bigAreas.sort(key=get_surface_size, reverse=True)
-
-
-#       print("bigAreas (", len(bigAreas), "):", bigAreas)
-#       # if(len(bigAreas) == 0):
-
-def placeRotatedHouse(smallArea):
-      print("smallArea:", smallArea)
-      print("minhouseDepth: ", minHouseDepth)
-      print("minhouseWidth: ", minHouseWidth)
-      if(smallArea['width'] >= minHouseDepth and smallArea['depth'] >= minHouseWidth ):
-            print("minhouseWidth: ", minHouseWidth)
-            
-            makeHouse(smallArea['startX'], smallArea['height'], smallArea['startZ'], smallArea['depth'], smallArea['width'], rotated=True)
-            return True
-            # biggestArea['startX'], biggestArea['height'], biggestArea['startZ'], randint(minHouseWidth, maxPossbileWidth), randint(minHouseDepth, maxPossbileDepth)
-      else:
-            return False
       
 def makeRoom(smallArea):
       print("Make some room voor the house")
@@ -948,43 +856,25 @@ def calculateArea():
       if(len(bigAreas) == 0):
             print("THERE ARE NO AREAS BIG ENOUGH! :(")
 
-            # Engage emergency functions.
+            # Engage emergency function.
             # (To make some room for the house.)
 
-            # 1.  Try rotating the house!
-            #     we use the biggest area from the array of areas that were too small for the minimum house measures
-            # done = placeRotatedHouse(smallerAreas[0])
-            # I deactivated placeRotatedHouse because it still has bugs which have to be fixed.
-            done = False;
 
-
-            # 2.  Try the same functions again, but this time don't exclude the water.
-            #     If the biggest area appears to be water/lava, build a raft to place a house on..
-            # buildRaft()
-
-            # 3.  If this is not the case, and the biggest area is not just water,
-            #     the area is probably a forest or an area with many mountains.
-            #     In that case, find the biggest area and fill the blocking areas with "air" blocks.
+            #     Find the biggest area and fill the blocking areas with "air" blocks.
             #     So cut out a part of the area. 
-            if(not(done)):
-                  # In the 'smallerAreas' list, filter out the spaces that are too close to the buildarea limit.
-                  smallerAreas = filter(fits_inside_buildarea, smallerAreas)
-                  smallerAreas = list(smallerAreas)
-                  
-                  if(len(smallerAreas) > 0):
-                        makeRoom(smallerAreas[0])
+            # In the 'smallerAreas' list, filter out the spaces that are too close to the buildarea limit.
+            smallerAreas = filter(fits_inside_buildarea, smallerAreas)
+            smallerAreas = list(smallerAreas)
+            
+            if(len(smallerAreas) > 0):
+                  makeRoom(smallerAreas[0])
+            else:
+                  print("There is no room at all. I will just make room for the house in the corner of the build area.")
+                  if((LASTX - STARTX >= minHouseWidth) and (LASTZ - STARTZ >= minHouseDepth)): # check whether the house fits inside the build area
+                        makeRoom({"height": heights[0][0], "startX": 0, "startZ": 0, "endX": minHouseWidth - 1, "endZ": minHouseDepth - 1, "width": minHouseWidth, "depth": minHouseDepth, "surfaceSize": minHouseWidth * minHouseDepth })
                   else:
-                        print("There is no room at all. I will just make room for the house in the corner of the build area.")
-                        if((LASTX - STARTX >= minHouseWidth) and (LASTZ - STARTZ >= minHouseDepth)): # check whether the house fits inside the build area
-                              makeRoom({"height": heights[0][0], "startX": 0, "startZ": 0, "endX": minHouseWidth - 1, "endZ": minHouseDepth - 1, "width": minHouseWidth, "depth": minHouseDepth, "surfaceSize": minHouseWidth * minHouseDepth })
-                        else:
-                              print("It is impossible to build the house in such a small build area!")
+                        print("It is impossible to build the house in such a small build area!")
 
-            # After these emergency functions have been successfully executed,
-            # try the original function again to find a good spot for the house.
-
-            # If that works, build the house anyway.
-            # If there is somehow still no place to build the house, give up... :(
 
             print(bigAreas)
       else:
