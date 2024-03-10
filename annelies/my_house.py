@@ -1,21 +1,6 @@
 #!/usr/bin/env python3
 
 
-# # Saving the heights to a file
-# heights = WORLDSLICE.heightmaps["MOTION_BLOCKING_NO_LEAVES"]
-# print("heights: ", heights);
-# np.savez('depth.npz', heights)
-
-# # Loading the file
-# heightsLoaded = np.load('depth.npz')['arr_0']
-# print(heightsLoaded)
-
-# # Plotting the file oyeah
-# plt.imshow(heightsLoaded)
-# plt.show()
-
-
-
 import logging
 from random import randint
 
