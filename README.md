@@ -6,7 +6,7 @@
 * You may not alter the area heavily (remove all blocks to make the house fit).
 * The house should have a clear theme.
 * The house should look a bit different every time.
-* Use the GDPC framework to generate blocks in Minecraft.
+* Clone the GDPC GitHub repository and use that framework to generate blocks in Minecraft.
 
 
 ## Result
