@@ -30,16 +30,35 @@ Things that are variable:
 * Type of lanterns hanging from the ceiling
 * Which side the white wall is on (left/right)
 * Whether the living room wall is cut only on the left side, or both sides
-
-![image_2024-03-07_09-55-46](https://github.com/Vaannelies/MGAIA-assignment-minecraft/assets/43701941/4304ff1e-6bc2-42cb-9843-49e8a46eadd6)
-![image_2024-03-08_16-55-44](https://github.com/Vaannelies/MGAIA-assignment-minecraft/assets/43701941/33a41ba1-d446-4994-b714-49a3b702c36a)
-![image_2024-03-09_22-07-24](https://github.com/Vaannelies/MGAIA-assignment-minecraft/assets/43701941/ccf2e340-ecf2-4487-82be-72299e63e97c)
-
-
-
-
+  
+<div>
+  <img src="https://github.com/Vaannelies/MGAIA-assignment-minecraft/assets/43701941/4304ff1e-6bc2-42cb-9843-49e8a46eadd6" width="30%">
+  <img src="https://github.com/Vaannelies/MGAIA-assignment-minecraft/assets/43701941/33a41ba1-d446-4994-b714-49a3b702c36a" width="30%">
+  <img src="https://github.com/Vaannelies/MGAIA-assignment-minecraft/assets/43701941/ccf2e340-ecf2-4487-82be-72299e63e97c" width="30%">
+</div>
 
 
+## How to use
+
+### To create the house:
+
+1. Start Minecraft
+2. Open your Minecraft world
+3. Set your desired build area in minecraft (like /setbuildarea ~0 -60 ~0 ~100 40 ~100)
+4. Open your terminal
+5. Go to the '/annelies' directory
+6. Run the command: python my_house.py
+7. Look around in Minecraft and see where the house was built!
+
+The script will build ONE house. If you want to see multiple houses, just go ahead and run "python my_house.py" again and again.
+The house will be spawned in a different place every time. 
+Sometimes the houses will stack on top of each other, if that is simply the best place.
+
+
+### For testing
+The other files in the '\annelies' directory were created for testing.
+I often tested the code on a flat map, so I created water and mountains and a grid to see the house adapt to the environment.
+You can try and run these files if you like, to see what they do.
 
 
 
