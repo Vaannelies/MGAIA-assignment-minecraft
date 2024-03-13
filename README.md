@@ -1,3 +1,50 @@
+# Minecraft Barbie House Generator - GDPC Framework
+
+## Assignment: Procedural Content Generation
+* Generate a house on the minecraft map in a build area of 100x100.
+* It should only be generated in realistic places. (Not on the water/lava, not in the air, not on top of a tree).
+* You may not alter the area heavily (remove all blocks to make the house fit).
+* The house should have a clear theme.
+* The house should look a bit different every time.
+* Use the GDPC framework to generate blocks in Minecraft.
+
+
+## Result
+I have used the GDPC framework to generate Barbie houses.
+
+Things that are variable:
+* Width of the house
+* Depth of the house
+* Direction of the stairs (left/right)
+* X-position of the stairs
+* Which side of the stairs the bathroom is on
+* Size of the bathroom + small or big bath tub (Figure 10)
+* Color of the building
+* Color of the floor
+* Color of the bed
+* Nightstand or candles next to the bed
+* Position of the chairs near the dining table
+* Pink flower ”paintings” on the wall or not
+* Size of the pink glass balcony
+* Position of the flowers on the balcony + amount + type of flower
+* Type of lanterns hanging from the ceiling
+* Which side the white wall is on (left/right)
+* Whether the living room wall is cut only on the left side, or both sides
+
+![image_2024-03-07_09-55-46](https://github.com/Vaannelies/MGAIA-assignment-minecraft/assets/43701941/4304ff1e-6bc2-42cb-9843-49e8a46eadd6)
+![image_2024-03-08_16-55-44](https://github.com/Vaannelies/MGAIA-assignment-minecraft/assets/43701941/33a41ba1-d446-4994-b714-49a3b702c36a)
+![image_2024-03-09_22-07-24](https://github.com/Vaannelies/MGAIA-assignment-minecraft/assets/43701941/ccf2e340-ecf2-4487-82be-72299e63e97c)
+
+
+
+
+
+
+
+
+
+
+
 # GDPC 6.0 (Transformative Update)
 
 GDPC (Generative Design Python Client) is a Python framework for use in conjunction with the [GDMC-HTTP](https://github.com/Niels-NTG/gdmc_http_interface) mod for Minecraft Java edition.
