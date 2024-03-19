@@ -1,4 +1,7 @@
 # Minecraft Barbie House Generator - GDPC Framework
+> [!NOTE]
+> This project was created using [the GDPC framework](https://github.com/avdstaaij/gdpc).
+
 
 ## Assignment: Procedural Content Generation
 * Generate a house on the minecraft map in a build area of 100x100.
@@ -63,6 +66,8 @@ You can try and run these files if you like, to see what they do.
 
 
 
+Below, you can find the original README text of [the GDPC framework](https://github.com/avdstaaij/gdpc).
+-
 
 # GDPC 6.0 (Transformative Update)
 
